@@ -40,6 +40,16 @@ if not os.path.exists(out_dir):
 	os.makedirs(out_dir)
 
 
+# Stratigraphic units Look-up dictionary
+# import from csv?
+LUT = pd.read_csv(script_dir, "LUT.csv")
+print(LUT)
+
+# Format as dictionary
+
+
+
+
 # Get all tifs in subdirectories
 
 print ("Gathering input files..")
