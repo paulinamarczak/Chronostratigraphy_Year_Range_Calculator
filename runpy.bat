@@ -24,7 +24,7 @@ echo %PATH%
 
 rem Set your python exe to your own install folder
 
-set python_exe= "%ProgramFiles%\ArcGIS\Pro\bin\Python\Scripts\proenv.bat"
+set python_exe= "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe"
 
 rem Configure the field name in the script
 

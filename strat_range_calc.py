@@ -19,7 +19,9 @@
 
 # ask george what the accepted inputs should be, whether the code should be flexible for multiple columns or just one coded column, or preferrably just the Stage/Age column
 
-import os, time
+import os
+
+import time
 
 print ("Starting at:", (time.strftime('%a %H:%M:%S')))
 print ("Importing modules..")
@@ -42,7 +44,7 @@ if not os.path.exists(out_dir):
 
 # Stratigraphic units Look-up dictionary
 # import from csv?
-LUT = pd.read_csv(script_dir, "LUT.csv")
+LUT = pd.read_csv("lut2.csv",  sep=",", encoding='cp1252')
 print(LUT)
 
 # Format as dictionary
@@ -52,24 +54,24 @@ print(LUT)
 
 # Get all tifs in subdirectories
 
-print ("Gathering input files..")
+# print ("Gathering input files..")
 
-for r,d,f in os.walk(script_dir):
-	# for file in each sub directory
-	for file in f:
-		if file.endswith("b.tif"):
-			scene_list.append(os.path.join(r, file))
-			print(f"Appended {file} to analysis")
+# for r,d,f in os.walk(script_dir):
+# 	# for file in each sub directory
+# 	for file in f:
+# 		if file.endswith(".csv") and not file ==("LUT.csv"):
+# 			scene_list.append(os.path.join(r, file))
+# 			print(f"Appended {file} to analysis")
 
-print (f"Processing the following files: {scene_list}")
-
-
-def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
-
-if __name__ == "__main__":
-	main(productlevel, bandproduct, startyear, endyear, field_threshold)
+# print (f"Processing the following files: {scene_list}")
 
 
-print("Completed at:", (time.strftime('%a %H:%M:%S')), f", see {out_dir}")
+# # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
+
+# # if __name__ == "__main__":
+# # 	main(productlevel, bandproduct, startyear, endyear, field_threshold)
+
+
+# print("Completed at:", (time.strftime('%a %H:%M:%S')), f", see {out_dir}")
 
 
