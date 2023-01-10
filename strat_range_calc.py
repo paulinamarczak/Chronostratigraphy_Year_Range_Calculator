@@ -44,26 +44,59 @@ if not os.path.exists(out_dir):
 
 # Stratigraphic units Look-up dictionary
 # import from csv?
-LUT = pd.read_csv("lut2.csv",  sep=",", encoding='cp1252')
+LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
 print(LUT)
 
 # Format as dictionary
 
+LUT_dict = {}
 
+# LUT_dict = {name: (i, parks_merge) for name,i,parks_merge in zip(intersect_list_names, intersect_list, park_merge_list)}
+
+
+#how do i want it to look
+
+LUT_dict = {
+  "System": "Quaternary",
+  "Epoch": "Holocene",
+  "Stage": "Meghalayan",
+  "age_max_t":0.0042,
+  "age_max_t_range": 0
+}
 
 
 # Get all tifs in subdirectories
 
-# print ("Gathering input files..")
+process_files_list = []
 
-# for r,d,f in os.walk(script_dir):
-# 	# for file in each sub directory
-# 	for file in f:
-# 		if file.endswith(".csv") and not file ==("LUT.csv"):
-# 			scene_list.append(os.path.join(r, file))
-# 			print(f"Appended {file} to analysis")
 
-# print (f"Processing the following files: {scene_list}")
+print ("Gathering input files..")
+
+for r,d,f in os.walk(script_dir):
+	# for file in each sub directory
+	for file in f:
+		if file.endswith(".xlsx") and not file.startswith('~$') or file.endswith(".xls") and not file ==("LUT.csv") and not file.endswith("out.csv"):
+			process_files_list.append(os.path.join(r, file))
+			print(f"Appended {file} to analysis")
+
+print (f"Processing the following files: {process_files_list}")
+
+
+for filename in process_files_list:
+	print("Calculating year ranges for", filename)
+	file = pd.read_excel(filename)
+
+	file[strat_age].split()...
+	
+	Left_join = pd.merge(file, 
+	                     LUT, 
+	                     left_on=['era','period', 'strat_age'],
+	                     right_on=['System', 'Epoch', 'Stage'],
+	                     how ='left')
+
+	#Left_join.drop('System', 'Epoch', 'Stage')
+	#split the column to identify ranges
+	print(Left_join)
 
 
 # # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
