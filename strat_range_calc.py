@@ -1,4 +1,4 @@
-# Conditional field population
+# Chronostratigraphy Year Range Calculator
 # Author: Paulina Marczak
 
 # iteratively grab excel files to process
@@ -20,21 +20,17 @@
 # ask george what the accepted inputs should be, whether the code should be flexible for multiple columns or just one coded column, or preferrably just the Stage/Age column
 
 import os
-
 import time
 
 print ("Starting at:", (time.strftime('%a %H:%M:%S')))
 print ("Importing modules..")
 
 import shutil
-
 import pandas as pd
-
 import csv
-
 import re
 
-# Paths
+# Define paths
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir= os.path.join(script_dir, "out_dir")
@@ -43,33 +39,42 @@ out_dir= os.path.join(script_dir, "out_dir")
 if not os.path.exists(out_dir):
 	os.makedirs(out_dir)
 
-
-# Stratigraphic units Look-up dictionary
-# import from csv?
-LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
-print(LUT)
-# Format as dictionary
+# Lists
 
 LUT_list = []
 
-#Make dictionaries and append all to one list of dictionaries
+# Get all files for processing in subdirectories
+
+process_files_list = []
+
+## Get list of columns used for classifying chronostratigraphy
+
+LUT_chrono_columns = ["System", "Epoch", "Stage"]
+
+# Functions
+
+## Make a rule for which records should be populated, which excludes uncertain classifications, as marked by '?'
+
+def Find_uncertain_stratigraphy(item):
+
+	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
+	return search_
+
+# Define inputs
+
+# Get dataset of all stratigraphic units and their ranges, as well as user-inputted excel files
+
+print ("Gathering input files..")
+
+LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
+
+# Format as list of dictionaries
 
 for index,row in LUT.iterrows():
 	d=row.to_dict()
 	LUT_list.append(d)
 
 print(LUT_list)
-
-#Get list of columns used for classifying chronostratigraphy
-
-LUT_chrono_columns = ["System", "Epoch", "Stage"]
-
-# Get all files for processing in subdirectories
-
-process_files_list = []
-
-
-print ("Gathering input files..")
 
 for r,d,f in os.walk(script_dir):
 	# for file in each sub directory
@@ -80,6 +85,7 @@ for r,d,f in os.walk(script_dir):
 
 print (f"Processing the following files: {process_files_list}")
 
+# Main
 
 for filename in process_files_list:
 	print("Calculating year ranges for", filename)
@@ -103,24 +109,26 @@ for filename in process_files_list:
 	# print(file.columns)
 	# print(file)
 
-	LUT_dict = {}
+	# LUT_dict = {}
 
 	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
-		# print(User_column)
+
+		list_of_values_to_match = []
+
 		columnSeriesObj_User = file[User_column]
-		# print(columnSeriesObj_User.values)
-		list_of_values_to_match = columnSeriesObj_User.values.tolist()
-		#print(list_of_values_to_match)
-		# letters = [c.casefold() for c in list_of_values_to_match if c.isalpha()]
-		# print(letters)
-		for item in list_of_values_to_match:
-			if item is not None and item is not "nan" and(bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))==False): #Regex search for all alphanumeric characters except for ?
+		list_of_values_ = columnSeriesObj_User.values.tolist()
+
+		for item in list_of_values_:
+			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False:
 				print("Found user record for populating", item)
+				list_of_values_to_match.append(item)
 			else: 
 				continue
-				#LUT_list[dictionary key]
-				# if list_a == dict_b:
-				# 	print("match found", list_a, dict_b)
+		for item in list_of_values_to_match:
+			for dict_ in LUT_list:
+				if item == dict_["System"]:
+					print (f"Match found between dictionary {dict_['System']} and stratigraphy {item}")
+
 
 	# for LUT_column in LUT.iloc[:, [0,1,2]]: # Compare each dataset column with possible stratigraphy phase
 	# 	columnSeriesObj = LUT[LUT_column]
