@@ -47,6 +47,10 @@ LUT_list = []
 
 process_files_list = []
 
+# Get list of chronostraphigraphic cells which contain valid rows for populating year ranges
+
+list_of_values_to_match = []
+
 ## Get list of columns used for classifying chronostratigraphy
 
 LUT_chrono_columns = ["System", "Epoch", "Stage"]
@@ -57,12 +61,6 @@ LUT_chrono_columns = ["System", "Epoch", "Stage"]
 
 def Find_uncertain_stratigraphy(item):
 
-	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
-	return search_
-
-# Rule for cleaning bracketed items
-# ex. Devonian (and Carboniferous) becomes Devonian to Carboniferous
-def Cleanup_ranges(item):
 	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
 	return search_
 
@@ -101,6 +99,7 @@ for filename in process_files_list:
 	#Ex., 'Carbiniferous to Permian' becomes 'Carbiniferous' and 'Permian'
 	# todo: change to variable input
 	#todo: change to single versus multiple field inputs
+	#todo: conditions for 'upper/lower'
 
 	strat_age_list = ['strat_age_max',
 						'strat_age_min']
@@ -113,28 +112,28 @@ for filename in process_files_list:
 
 	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
 
-		list_of_values_to_match = []
-
 		columnSeriesObj_User = file[User_column]
 		list_of_values_ = columnSeriesObj_User.values.tolist()
+		print('User_column', User_column)
+		print('columnSeriesObj_User', columnSeriesObj_User)
+		print('list_of_values_', list_of_values_)
 
 		for item in list_of_values_:
 			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False:
-				print("Found user record for populating", item)
+				#print("Found user record for populating", item)
 				list_of_values_to_match.append(item)
 			else: 
 				continue
 		for item in list_of_values_to_match:
 			for dict_ in LUT_list:
 				if item == dict_["System"]:
-					print (f"Match found between dictionary for System {dict_['System']} and stratigraphy {item}")
-
+					#print (f"Match found between dictionary for System {dict_['System']} and stratigraphy {item}")
 					#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
-
-				elif item == dict_["Epoch"]:
+					continue
+				elif item == dict_.get("Epoch"):
 					pass
 					#print (f"Match found between dictionary for Epoch {dict_['Epoch']} and stratigraphy {item}")
-				elif item == dict["Stage"]:
+				elif item == dict_.get("Stage"):
 					pass
 					#print (f"Match found between dictionary for Stage {dict_['Stage']} and stratigraphy {item}")
 				else:
