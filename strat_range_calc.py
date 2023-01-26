@@ -132,11 +132,14 @@ for filename in process_files_list:
 					#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
 
 				elif item == dict_["Epoch"]:
-					print (f"Match found between dictionary for Epoch {dict_['Epoch']} and stratigraphy {item}")
+					pass
+					#print (f"Match found between dictionary for Epoch {dict_['Epoch']} and stratigraphy {item}")
 				elif item == dict["Stage"]:
-					print (f"Match found between dictionary for Stage {dict_['Stage']} and stratigraphy {item}")
+					pass
+					#print (f"Match found between dictionary for Stage {dict_['Stage']} and stratigraphy {item}")
 				else:
-					print(f"No calculations performed on {item}")
+					pass
+					#print(f"No calculations performed on {item}")
 
 	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
 	
