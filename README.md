@@ -6,6 +6,10 @@ January 26, 2023
 
 paulina.marczak@gov.bc.ca
 
+## Table of Contents
+
+[TOC]
+
 ## What does it do?
 
 This calculator determines any outstanding date ranges for a given chronostratigraphic spreadsheet. 
@@ -37,17 +41,12 @@ For an example, refer to the Quaternary system record above. The age_max is 0.00
 
 ## User-Editable Parameters:
 
-1) You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.
+* You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.
+* This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.
+* You can set the name of the input column as an input environment variable. 
+* The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.
 
-This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.
 
-You can set the name of the input column as an input environment variable. 
-
-The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.
-
-An example batch file execution is as such:
-
--Run strat_range_calc.py -NO OVERWRITE
 
 ## Requirements for use:
 
@@ -57,7 +56,7 @@ An example batch file execution is as such:
 
 3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. 
 
-### Example:
+### Example (basic):
 
 Here is my input file, "stratigraphy_2023_12_08.xlsx".
 
@@ -79,7 +78,12 @@ As you can see, strat_age values that have question marks are not calculated in 
 
 Users must take care to ensure their data is formatted to reflect the strat_age example above for use in the calculator or unintended errors may arise.
 
-For issues that arise that have not been documented above, contact Paulina.
+### Example (modifiable parameters):
+
+An example batch file execution is as such:
+
+        -Run strat_range_calc.py -one -
+
 
 ---------
 ## Notes on Dockerfile
@@ -131,3 +135,9 @@ then run the container by
 This will run the container and map the host's port 8000 to the container's port 8000 so you can access the app on http://localhost:8000
 
 Please note that this is just an example and you may need to adjust the commands, ports, and file paths based on your specific application and environment.
+
+
+
+# Support:
+
+For issues that arise that have not been documented above, contact Paulina.

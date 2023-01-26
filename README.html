@@ -1070,6 +1070,25 @@ body .markdown-body
 <h2 id="user-manual">User manual<a class="headerlink" href="#user-manual" title="Permanent link"></a></h2>
 <p>January 26, 2023</p>
 <p><a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#97;&#117;&#108;&#105;&#110;&#97;&#46;&#109;&#97;&#114;&#99;&#122;&#97;&#107;&#64;&#103;&#111;&#118;&#46;&#98;&#99;&#46;&#99;&#97;">&#112;&#97;&#117;&#108;&#105;&#110;&#97;&#46;&#109;&#97;&#114;&#99;&#122;&#97;&#107;&#64;&#103;&#111;&#118;&#46;&#98;&#99;&#46;&#99;&#97;</a></p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link"></a></h2>
+<div class="toc">
+<ul>
+<li><a href="#chronostratigraphy-year-range-calculator">Chronostratigraphy Year Range Calculator  </a><ul>
+<li><a href="#user-manual">User manual</a></li>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#what-does-it-do">What does it do?</a></li>
+<li><a href="#user-editable-parameters">User-Editable Parameters:</a></li>
+<li><a href="#requirements-for-use">Requirements for use:</a><ul>
+<li><a href="#example-basic">Example (basic):</a></li>
+<li><a href="#example-modifiable-parameters">Example (modifiable parameters):</a></li>
+</ul>
+</li>
+<li><a href="#notes-on-dockerfile">Notes on Dockerfile</a></li>
+</ul>
+</li>
+<li><a href="#support">Support:</a></li>
+</ul>
+</div>
 <h2 id="what-does-it-do">What does it do?<a class="headerlink" href="#what-does-it-do" title="Permanent link"></a></h2>
 <p>This calculator determines any outstanding date ranges for a given chronostratigraphic spreadsheet. </p>
 <p>Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the v 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:</p>
@@ -1091,17 +1110,17 @@ body .markdown-body
 <p>is defined as any year range estimates associated with the most recent age.</p>
 <p>For an example, refer to the Quaternary system record above. The age_max is 0.0042, which is the oldest age that is classified under Quaternary. </p>
 <h2 id="user-editable-parameters">User-Editable Parameters:<a class="headerlink" href="#user-editable-parameters" title="Permanent link"></a></h2>
-<p>1) You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.</p>
-<p>This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.</p>
-<p>You can set the name of the input column as an input environment variable. </p>
-<p>The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.</p>
-<p>An example batch file execution is as such:</p>
-<p>-Run strat_range_calc.py -NO OVERWRITE</p>
+<ul>
+<li>You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.</li>
+<li>This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.</li>
+<li>You can set the name of the input column as an input environment variable. </li>
+<li>The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.</li>
+</ul>
 <h2 id="requirements-for-use">Requirements for use:<a class="headerlink" href="#requirements-for-use" title="Permanent link"></a></h2>
 <p>1) The file has to be an excel file. If you have a csv, save it as an Excel file.</p>
 <p>2) The file has to be sitting in the same directory as the script. It can also be in a subdirectory of the script. The script will look for and try to process all Excel files within all subdirectories of the script location.</p>
 <p>3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. </p>
-<h3 id="example">Example:<a class="headerlink" href="#example" title="Permanent link"></a></h3>
+<h3 id="example-basic">Example (basic):<a class="headerlink" href="#example-basic" title="Permanent link"></a></h3>
 <p>Here is my input file, &ldquo;stratigraphy_2023_12_08.xlsx&rdquo;.</p>
 <pre><code>    strat_age                    age_max
     Devonian (and Carboniferous) (blank cell)
@@ -1117,7 +1136,10 @@ body .markdown-body
 <p>as &ldquo;stratigraphy_2023_12_08_out.xlsx&rdquo; in the subdirectory /out.</p>
 <p>As you can see, strat_age values that have question marks are not calculated in the age_max column. The calculator populates empty cells inline, meaning the original age_max column is populated. The calculator does not overwrite existing values in age_max and does not calculate values for any other input strat_age format.</p>
 <p>Users must take care to ensure their data is formatted to reflect the strat_age example above for use in the calculator or unintended errors may arise.</p>
-<p>For issues that arise that have not been documented above, contact Paulina.</p>
+<h3 id="example-modifiable-parameters">Example (modifiable parameters):<a class="headerlink" href="#example-modifiable-parameters" title="Permanent link"></a></h3>
+<p>An example batch file execution is as such:</p>
+<pre><code>    -Run strat_range_calc.py -NO OVERWRITE
+</code></pre>
 <hr />
 <h2 id="notes-on-dockerfile">Notes on Dockerfile<a class="headerlink" href="#notes-on-dockerfile" title="Permanent link"></a></h2>
 <p>To deploy an app using a Dockerfile, you&rsquo;ll need to have Docker installed on the machine you&rsquo;re using for deployment. Once you have Docker set up, you can use the following steps to deploy your app:</p>
@@ -1164,4 +1186,6 @@ body .markdown-body
 <pre><code>            docker run -p 8000:8000 my_app
 </code></pre>
 <p>This will run the container and map the host&rsquo;s port 8000 to the container&rsquo;s port 8000 so you can access the app on <a href="http://localhost:8000">http://localhost:8000</a></p>
-<p>Please note that this is just an example and you may need to adjust the commands, ports, and file paths based on your specific application and environment.</p></article></body></html>
+<p>Please note that this is just an example and you may need to adjust the commands, ports, and file paths based on your specific application and environment.</p>
+<h1 id="support">Support:<a class="headerlink" href="#support" title="Permanent link"></a></h1>
+<p>For issues that arise that have not been documented above, contact Paulina.</p></article></body></html>
