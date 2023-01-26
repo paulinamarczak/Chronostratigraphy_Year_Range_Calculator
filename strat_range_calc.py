@@ -114,10 +114,10 @@ for filename in process_files_list:
 		# letters = [c.casefold() for c in list_of_values_to_match if c.isalpha()]
 		# print(letters)
 		for item in list_of_values_to_match:
-			# ignore_unknowns = re.
-			if item is not None and (bool(re.search('^[a-zA-Z0-9]*$',str(item)))==True):
+			if item is not None and item is not "nan" and(bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))==False): #Regex search for all alphanumeric characters except for ?
 				print("Found user record for populating", item)
-			else: print(item)
+			else: 
+				continue
 				#LUT_list[dictionary key]
 				# if list_a == dict_b:
 				# 	print("match found", list_a, dict_b)
