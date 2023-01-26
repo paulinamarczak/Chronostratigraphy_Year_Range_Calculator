@@ -60,6 +60,12 @@ def Find_uncertain_stratigraphy(item):
 	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
 	return search_
 
+# Rule for cleaning bracketed items
+# ex. Devonian (and Carboniferous) becomes Devonian to Carboniferous
+def Cleanup_ranges(item):
+	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
+	return search_
+
 # Define inputs
 
 # Get dataset of all stratigraphic units and their ranges, as well as user-inputted excel files
@@ -93,23 +99,17 @@ for filename in process_files_list:
 
 	# Splitting input stratigraphic range into two columns for easier merging
 	#Ex., 'Carbiniferous to Permian' becomes 'Carbiniferous' and 'Permian'
+	# todo: change to variable input
+	#todo: change to single versus multiple field inputs
 
 	strat_age_list = ['strat_age_max',
 						'strat_age_min']
 
-	#todo: change to variable input
-	#todo: change to single versus multiple field inputs
-
-	file[strat_age_list] = file['strat_age'].str.split('to',expand=True) 
-	
-	# Cleanup extra whitespace
+	# make function?
+	file['strat_age'] = file['strat_age'].str.replace(r"\(|\)", "") #strip all parentheses
+	file[strat_age_list] = file['strat_age'].str.split(r'to|and',expand=True)
 	file['strat_age_max'] = file['strat_age_max'].str.strip()
 	file['strat_age_min'] = file['strat_age_min'].str.strip()
-
-	# print(file.columns)
-	# print(file)
-
-	# LUT_dict = {}
 
 	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
 
@@ -127,27 +127,16 @@ for filename in process_files_list:
 		for item in list_of_values_to_match:
 			for dict_ in LUT_list:
 				if item == dict_["System"]:
-					print (f"Match found between dictionary {dict_['System']} and stratigraphy {item}")
+					print (f"Match found between dictionary for System {dict_['System']} and stratigraphy {item}")
 
+					#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
 
-	# for LUT_column in LUT.iloc[:, [0,1,2]]: # Compare each dataset column with possible stratigraphy phase
-	# 	columnSeriesObj = LUT[LUT_column]
-	# 	print("columnSeriesObj", columnSeriesObj.values)
-	# 	LUT_dict = dict(zip(lakes.id, lakes.value))
-
-	# 	list_a = columnSeriesObj.values.tolist()
-	# 	LUT_dict.append(list_a)
-	# 	print('LUT_dict', LUT_dict)
-		
-	# 	for User_column in file.iloc[:, [-1,-2]]:
-	# 		# print(User_column)
-	# 		columnSeriesObj_User = file[User_column]
-	# 		# print(columnSeriesObj_User.values)
-	# 		list_b = columnSeriesObj_User.values.tolist()
-	# 		print(list_a, dict_b)
-	# 		if list_a == dict_b:
-	# 			print("match found", list_a, dict_b)
-
+				elif item == dict_["Epoch"]:
+					print (f"Match found between dictionary for Epoch {dict_['Epoch']} and stratigraphy {item}")
+				elif item == dict["Stage"]:
+					print (f"Match found between dictionary for Stage {dict_['Stage']} and stratigraphy {item}")
+				else:
+					print(f"No calculations performed on {item}")
 
 	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
 	
@@ -158,7 +147,6 @@ for filename in process_files_list:
 	# print(file)
 
 	# print("Joining year ranges from lookup table")
-
 
 
 	# Left_join = pd.merge(file, LUT, how='inner', left_on = 'strat_age_max', right_on = 'Epoch')
