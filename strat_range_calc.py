@@ -32,6 +32,8 @@ import pandas as pd
 
 import csv
 
+import re
+
 # Paths
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -46,27 +48,23 @@ if not os.path.exists(out_dir):
 # import from csv?
 LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
 print(LUT)
-
 # Format as dictionary
 
-LUT_dict = {}
+LUT_list = []
 
-# LUT_dict = {name: (i, parks_merge) for name,i,parks_merge in zip(intersect_list_names, intersect_list, park_merge_list)}
+#Make dictionaries and append all to one list of dictionaries
 
+for index,row in LUT.iterrows():
+	d=row.to_dict()
+	LUT_list.append(d)
 
-LUT_dict = {
-  "System": "Quaternary",
-  "Epoch": "Holocene",
-  "Stage": "Meghalayan",
-  "strat_age_max":0.0042,
-  "strat_age_max_range": 0
-}
+print(LUT_list)
 
 #Get list of columns used for classifying chronostratigraphy
 
 LUT_chrono_columns = ["System", "Epoch", "Stage"]
 
-# Get all tifs in subdirectories
+# Get all files for processing in subdirectories
 
 process_files_list = []
 
@@ -93,37 +91,71 @@ for filename in process_files_list:
 	strat_age_list = ['strat_age_max',
 						'strat_age_min']
 
+	#todo: change to variable input
+	#todo: change to single versus multiple field inputs
+
 	file[strat_age_list] = file['strat_age'].str.split('to',expand=True) 
 	
 	# Cleanup extra whitespace
 	file['strat_age_max'] = file['strat_age_max'].str.strip()
 	file['strat_age_min'] = file['strat_age_min'].str.strip()
 
-	print(file)
-	# print(LUT.loc[:, [LUT_chrono_columns]])
-	for LUT_column in LUT.iloc[:, [0,1,2]]: # Compare each dataset column with possible stratigraphy
-		columnSeriesObj = LUT[LUT_column]
-		print(columnSeriesObj.values)
+	# print(file.columns)
+	# print(file)
 
-		for User_column in file.loc[:, [strat_age_list]]:
-			columnSeriesObj_User = LUT[User_column]
-			print(columnSeriesObj_User.values)
+	LUT_dict = {}
 
-	df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
+	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
+		# print(User_column)
+		columnSeriesObj_User = file[User_column]
+		# print(columnSeriesObj_User.values)
+		list_of_values_to_match = columnSeriesObj_User.values.tolist()
+		#print(list_of_values_to_match)
+		# letters = [c.casefold() for c in list_of_values_to_match if c.isalpha()]
+		# print(letters)
+		for item in list_of_values_to_match:
+			# ignore_unknowns = re.
+			if item is not None and (bool(re.search('^[a-zA-Z0-9]*$',str(item)))==True):
+				print("Found user record for populating", item)
+			else: print(item)
+				#LUT_list[dictionary key]
+				# if list_a == dict_b:
+				# 	print("match found", list_a, dict_b)
+
+	# for LUT_column in LUT.iloc[:, [0,1,2]]: # Compare each dataset column with possible stratigraphy phase
+	# 	columnSeriesObj = LUT[LUT_column]
+	# 	print("columnSeriesObj", columnSeriesObj.values)
+	# 	LUT_dict = dict(zip(lakes.id, lakes.value))
+
+	# 	list_a = columnSeriesObj.values.tolist()
+	# 	LUT_dict.append(list_a)
+	# 	print('LUT_dict', LUT_dict)
+		
+	# 	for User_column in file.iloc[:, [-1,-2]]:
+	# 		# print(User_column)
+	# 		columnSeriesObj_User = file[User_column]
+	# 		# print(columnSeriesObj_User.values)
+	# 		list_b = columnSeriesObj_User.values.tolist()
+	# 		print(list_a, dict_b)
+	# 		if list_a == dict_b:
+	# 			print("match found", list_a, dict_b)
+
+
+	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
 	
 
-	df1 = df1[(df1.start <= df1.start_key) & (df1.end <= df1.end_key)]
-	df1 = pd.merge(df, df1, on=['order','start','end', 'value'], how='left')
+	# df1 = df1[(df1.start <= df1.start_key) & (df1.end <= df1.end_key)]
+	# df1 = pd.merge(df, df1, on=['order','start','end', 'value'], how='left')
 
-	print(file)
+	# print(file)
 
-	print("Joining year ranges from lookup table")
+	# print("Joining year ranges from lookup table")
 
 
 
-	Left_join = pd.merge(file, LUT, how='inner', left_on = 'strat_age_max', right_on = 'Epoch')
+	# Left_join = pd.merge(file, LUT, how='inner', left_on = 'strat_age_max', right_on = 'Epoch')
 
-	print(Left_join)
+	# print(Left_join)
 
 	# Left_join = file.merge(LUT, 
 	# 					 left_on=['strat_age_max'],
@@ -134,17 +166,17 @@ for filename in process_files_list:
 	#Left_join = file.assign(new_age_max=file['period'].map(LUT.set_index('Epoch')['strat_age_max']))
 
 
-	print("leftjoin", Left_join)
-	# Left_join.index = Left_join[colName]
-	list(Left_join.columns)
-	#Left_join = Left_join.drop(['System', 'Epoch', 'Stage', Left_join.columns[-1], Left_join.columns[-2]], axis= 1)
-	#split the column to identify ranges
-	print(Left_join)
+	# print("leftjoin", Left_join)
+	# # Left_join.index = Left_join[colName]
+	# list(Left_join.columns)
+	# #Left_join = Left_join.drop(['System', 'Epoch', 'Stage', Left_join.columns[-1], Left_join.columns[-2]], axis= 1)
+	# #split the column to identify ranges
+	# print(Left_join)
 
-	filename_no_path = filename.split(".")[0].split("\\")[-1]
+	# filename_no_path = filename.split(".")[0].split("\\")[-1]
 
-	file_export = os.path.join(out_dir, filename_no_path + "_out.csv")
-	Left_join.to_csv(file_export)
+	# file_export = os.path.join(out_dir, filename_no_path + "_out.csv")
+	# Left_join.to_csv(file_export)
 
 
 # # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
