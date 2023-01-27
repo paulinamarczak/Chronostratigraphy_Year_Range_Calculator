@@ -12,9 +12,13 @@ paulina.marczak@gov.bc.ca
 
 ## What does it do?
 
+https://datatofish.com/executable-pyinstaller/
+https://www.tomshardware.com/how-to/create-python-executable-applications
+
+
 This calculator determines any outstanding date ranges for a given chronostratigraphic spreadsheet. 
 
-Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the v 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:
+Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the version 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:
 
             System      Epoch    Stage   age_max   age_max_ age_min  age_min_
             Quaternary  Holocene Megh... 0.0042    0       0       0
@@ -46,7 +50,7 @@ For an example, refer to the Quaternary system record above. The age_max is 0.00
 * You can set the name of the input column as an input environment variable. 
 * The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.
 
-
+See Example (modifiable parameters) for more details.
 
 ## Requirements for use:
 
@@ -54,7 +58,10 @@ For an example, refer to the Quaternary system record above. The age_max is 0.00
 
 2) The file has to be sitting in the same directory as the script. It can also be in a subdirectory of the script. The script will look for and try to process all Excel files within all subdirectories of the script location.
 
-3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. 
+3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. Friendly format is described in the Example (basic) section below.
+
+4) You should have Docker installed.
+
 
 ### Example (basic):
 

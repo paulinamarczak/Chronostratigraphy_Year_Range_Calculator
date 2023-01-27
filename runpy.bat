@@ -19,7 +19,7 @@ rem If these are not yet installed, run the batch file once, then locate the pat
 rem Update the path with your local installs.
 rem Now you may rerun the batch file.
 
-set "PATH= %PATH%, %ProgramFiles%\ArcGIS\Pro\bin\Python\Scripts\%"
+set "PATH= %PATH%, %ProgramFiles%\ArcGIS\Pro\bin\Python\Scripts\%, C:\Users\PMARCZAK\AppData\Roaming\Python\Python39\Scripts"
 echo %PATH%
 
 rem Set your python exe to your own install folder
