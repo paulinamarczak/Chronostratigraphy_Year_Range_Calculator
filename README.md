@@ -107,7 +107,7 @@ To deploy an app using a Dockerfile, you'll need to have Docker installed on the
 
 Here's an example of a Dockerfile for a simple Python app:
 
-Copy code
+
                 # Use an official Python runtime as the base image
                 FROM python:3.8-alpine
                 

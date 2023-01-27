@@ -1090,8 +1090,10 @@ body .markdown-body
 </ul>
 </div>
 <h2 id="what-does-it-do">What does it do?<a class="headerlink" href="#what-does-it-do" title="Permanent link"></a></h2>
+<p><a href="https://datatofish.com/executable-pyinstaller/">https://datatofish.com/executable-pyinstaller/</a>
+<a href="https://www.tomshardware.com/how-to/create-python-executable-applications">https://www.tomshardware.com/how-to/create-python-executable-applications</a></p>
 <p>This calculator determines any outstanding date ranges for a given chronostratigraphic spreadsheet. </p>
-<p>Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the v 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:</p>
+<p>Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the version 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:</p>
 <pre><code>        System      Epoch    Stage   age_max   age_max_ age_min  age_min_
         Quaternary  Holocene Megh... 0.0042    0       0       0
 </code></pre>
@@ -1116,10 +1118,12 @@ body .markdown-body
 <li>You can set the name of the input column as an input environment variable. </li>
 <li>The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.</li>
 </ul>
+<p>See Example (modifiable parameters) for more details.</p>
 <h2 id="requirements-for-use">Requirements for use:<a class="headerlink" href="#requirements-for-use" title="Permanent link"></a></h2>
 <p>1) The file has to be an excel file. If you have a csv, save it as an Excel file.</p>
 <p>2) The file has to be sitting in the same directory as the script. It can also be in a subdirectory of the script. The script will look for and try to process all Excel files within all subdirectories of the script location.</p>
-<p>3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. </p>
+<p>3) The fields that will be used for determining the age column need to be in a format that is friendly for the script. Friendly format is described in the Example (basic) section below.</p>
+<p>4) You should have Docker installed.</p>
 <h3 id="example-basic">Example (basic):<a class="headerlink" href="#example-basic" title="Permanent link"></a></h3>
 <p>Here is my input file, &ldquo;stratigraphy_2023_12_08.xlsx&rdquo;.</p>
 <pre><code>    strat_age                    age_max
@@ -1138,7 +1142,7 @@ body .markdown-body
 <p>Users must take care to ensure their data is formatted to reflect the strat_age example above for use in the calculator or unintended errors may arise.</p>
 <h3 id="example-modifiable-parameters">Example (modifiable parameters):<a class="headerlink" href="#example-modifiable-parameters" title="Permanent link"></a></h3>
 <p>An example batch file execution is as such:</p>
-<pre><code>    -Run strat_range_calc.py -NO OVERWRITE
+<pre><code>    -Run strat_range_calc.py -one -
 </code></pre>
 <hr />
 <h2 id="notes-on-dockerfile">Notes on Dockerfile<a class="headerlink" href="#notes-on-dockerfile" title="Permanent link"></a></h2>
@@ -1158,10 +1162,10 @@ body .markdown-body
 </li>
 </ol>
 <p>Here&rsquo;s an example of a Dockerfile for a simple Python app:</p>
-<p>Copy code
-                # Use an official Python runtime as the base image
-                FROM python:3.8-alpine</p>
-<pre><code>            # Set the working directory in the container
+<pre><code>            # Use an official Python runtime as the base image
+            FROM python:3.8-alpine
+
+            # Set the working directory in the container
             WORKDIR /app
 
             # Copy the requirements file into the container

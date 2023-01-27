@@ -64,6 +64,7 @@ def Find_uncertain_stratigraphy(item):
 	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
 	return search_
 
+
 # Define inputs
 
 # Get dataset of all stratigraphic units and their ranges, as well as user-inputted excel files
@@ -72,24 +73,26 @@ print ("Gathering input files..")
 
 LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
 
+
 # Format as list of dictionaries
 
 for index,row in LUT.iterrows():
 	d=row.to_dict()
 	LUT_list.append(d)
 
-print(LUT_list)
+# Main
 
 for r,d,f in os.walk(script_dir):
 	# for file in each sub directory
 	for file in f:
-		if file.endswith(".xlsx") and not file.startswith('~$') or file.endswith(".xls") and not file ==("LUT.csv") and not file.endswith("out.csv"):
+		# if "LUT" not in file:
+		# 	print(file)
+		prefixes = ['~$', 'LUT']
+		if file.endswith(".xlsx") and not file.startswith(tuple(prefixes)) or file.endswith(".xls") and not file ==("LUT.csv") and not file.endswith("out.csv"):
 			process_files_list.append(os.path.join(r, file))
 			print(f"Appended {file} to analysis")
 
 print (f"Processing the following files: {process_files_list}")
-
-# Main
 
 for filename in process_files_list:
 	print("Calculating year ranges for", filename)
@@ -114,31 +117,45 @@ for filename in process_files_list:
 
 		columnSeriesObj_User = file[User_column]
 		list_of_values_ = columnSeriesObj_User.values.tolist()
-		print('User_column', User_column)
-		print('columnSeriesObj_User', columnSeriesObj_User)
-		print('list_of_values_', list_of_values_)
+		print('User_column', User_column) # name of field
+		print('columnSeriesObj_User', columnSeriesObj_User) # accessing the field in the dataframe
+		# print('list_of_values_', list_of_values_) #  list_of_values_ = converted from df field to actual list of stratigraphies from user, represented as one column for 'from' and another for 'to' 
 
 		for item in list_of_values_:
-			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False:
+			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False: # Can only populate where stratigraphy has been defined
 				#print("Found user record for populating", item)
 				list_of_values_to_match.append(item)
 			else: 
 				continue
+
+		# match user record with a dictionary reference
+
 		for item in list_of_values_to_match:
+			print("item", item)
 			for dict_ in LUT_list:
-				if item == dict_["System"]:
-					#print (f"Match found between dictionary for System {dict_['System']} and stratigraphy {item}")
-					#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
-					continue
-				elif item == dict_.get("Epoch"):
-					pass
-					#print (f"Match found between dictionary for Epoch {dict_['Epoch']} and stratigraphy {item}")
-				elif item == dict_.get("Stage"):
-					pass
-					#print (f"Match found between dictionary for Stage {dict_['Stage']} and stratigraphy {item}")
-				else:
-					pass
-					#print(f"No calculations performed on {item}")
+				#print(dict_)
+				for key, value in dict_.items():
+					print("key", value)
+					if item == value:
+						
+						print("MATCH", item,key)
+						# or get the dictionary here? but i dont think that makes sense
+
+						print (f"Match found between dictionary for {key, value} and stratigraphy {item}")
+						
+						#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
+
+						columnSeriesObj_User['age_max_t']= value
+
+					# elif item == index.get("Epoch"):
+					# 	pass
+					# 	#print (f"Match found between dictionary for Epoch {index['Epoch']} and stratigraphy {item}")
+					# elif item == index.get("Stage"):
+					# 	pass
+					# 	#print (f"Match found between dictionary for Stage {index['Stage']} and stratigraphy {item}")
+					# else:
+					# 	pass
+					# 	#print(f"No calculations performed on {item}")
 
 	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
 	
