@@ -1,0 +1,13 @@
+script improvements
+
+You can use the os.path.splitext() function to easily separate the file name from the file extension when checking for file types.
+Instead of using a list of prefixes to exclude certain files, you can use the os.path.basename() function to get the base name of a file and check if it starts with the prefixes you want to exclude.
+You can use the pd.read_excel() function with the usecols parameter to only read in the columns you need from the Excel files, rather than reading in the entire file and then selecting the columns you need.
+You can use the pd.merge() function to merge the data from the Excel files with the data from the LUT file, rather than iterating through the rows of the LUT file and appending them to a list.
+You can use the pd.to_numeric() function to convert the age columns to numeric data, which will allow you to perform calculations on them.
+You can use the pd.isna() function to check if a value is missing in a column and handle it accordingly.
+You can use pd.concat() function to join the dataframe.
+You can use pd.DataFrame.groupby() function to group the dataframe by columns.
+You can use pd.DataFrame.agg() function to perform calculations on the groupby dataframe.
+You can use pd.DataFrame.sort_values() function to sort the dataframe in a specific order.
+You can use pd.DataFrame.to_csv() function to write the dataframe to a csv file.

@@ -100,6 +100,7 @@ for filename in process_files_list:
 
 	# Splitting input stratigraphic range into two columns for easier merging
 	#Ex., 'Carbiniferous to Permian' becomes 'Carbiniferous' and 'Permian'
+
 	# todo: change to variable input
 	#todo: change to single versus multiple field inputs
 	#todo: conditions for 'upper/lower'
@@ -107,23 +108,36 @@ for filename in process_files_list:
 	strat_age_list = ['strat_age_max',
 						'strat_age_min']
 
+	
+
 	# make function?
 	file['strat_age'] = file['strat_age'].str.replace(r"\(|\)", "") #strip all parentheses
 	file[strat_age_list] = file['strat_age'].str.split(r'to|and',expand=True)
 	file['strat_age_max'] = file['strat_age_max'].str.strip()
 	file['strat_age_min'] = file['strat_age_min'].str.strip()
 
+	#define export paths
+
+	filename_no_path = filename.split(".")[0].split("\\")[-1]
+
+	file_export = os.path.join(out_dir, filename_no_path + "_out.csv")
+
+	# method 1
+	print(file)
+	out = pd.merge(file, LUT, on = ["strat_age_max", "System_Series_Stage"])
+	print(out)
+
+	out.to_csv(file_export)
+
+
+	#method 2
 	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
 
 		columnSeriesObj_User = file[User_column]
 		list_of_values_ = columnSeriesObj_User.values.tolist()
-		#print('User_column', User_column) # name of field
-		#print('columnSeriesObj_User', columnSeriesObj_User) # accessing the field in the dataframe
-		# print('list_of_values_', list_of_values_) #  list_of_values_ = converted from df field to actual list of stratigraphies from user, represented as one column for 'from' and another for 'to' 
 
 		for item in list_of_values_:
 			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False: # Can only populate where stratigraphy has been defined
-				#print("Found user record for populating", item)
 				list_of_values_to_match.append(item)
 			else: 
 				continue
@@ -146,58 +160,6 @@ for filename in process_files_list:
 
 					print(columnSeriesObj_User)
 
-				# for key,value in dict_.items():
-				# 	#only want keys for system_sries_stage
-				# 	#then if thats a match with its value, then populate field with next keys value
-				# 	print("key val", key, value)
-					
-				# 	if item == value:
-						
-				# 		print("matched", item, key, value)
-				# 		print (f"Match found between dictionary for {key, value}, {key[1]} and stratigraphy {item}")
-
-				# 		#if item == first key, then populate with value of second pair (for max of age_max_t)
-
-				# 	 	#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
-
-				# 		columnSeriesObj_User['age_max_t']= key["age_max_t"]
-				# 		print("success!", columnSeriesObj_User['age_max_t'])
-
-	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
-	
-
-	# df1 = df1[(df1.start <= df1.start_key) & (df1.end <= df1.end_key)]
-	# df1 = pd.merge(df, df1, on=['order','start','end', 'value'], how='left')
-
-	# print(file)
-
-	# print("Joining year ranges from lookup table")
-
-
-	# Left_join = pd.merge(file, LUT, how='inner', left_on = 'strat_age_max', right_on = 'Epoch')
-
-	# print(Left_join)
-
-	# Left_join = file.merge(LUT, 
-	# 					 left_on=['strat_age_max'],
-	# 					 right_on=['Epoch'],
-	# 					 how ='left')
-	file= file.drop(file.index[0])
-
-	#Left_join = file.assign(new_age_max=file['period'].map(LUT.set_index('Epoch')['strat_age_max']))
-
-
-	# print("leftjoin", Left_join)
-	# # Left_join.index = Left_join[colName]
-	# list(Left_join.columns)
-	# #Left_join = Left_join.drop(['System', 'Epoch', 'Stage', Left_join.columns[-1], Left_join.columns[-2]], axis= 1)
-	# #split the column to identify ranges
-	# print(Left_join)
-
-	# filename_no_path = filename.split(".")[0].split("\\")[-1]
-
-	# file_export = os.path.join(out_dir, filename_no_path + "_out.csv")
-	# Left_join.to_csv(file_export)
 
 
 # # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
