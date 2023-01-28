@@ -117,8 +117,8 @@ for filename in process_files_list:
 
 		columnSeriesObj_User = file[User_column]
 		list_of_values_ = columnSeriesObj_User.values.tolist()
-		print('User_column', User_column) # name of field
-		print('columnSeriesObj_User', columnSeriesObj_User) # accessing the field in the dataframe
+		#print('User_column', User_column) # name of field
+		#print('columnSeriesObj_User', columnSeriesObj_User) # accessing the field in the dataframe
 		# print('list_of_values_', list_of_values_) #  list_of_values_ = converted from df field to actual list of stratigraphies from user, represented as one column for 'from' and another for 'to' 
 
 		for item in list_of_values_:
@@ -131,31 +131,37 @@ for filename in process_files_list:
 		# match user record with a dictionary reference
 
 		for item in list_of_values_to_match:
-			print("item", item)
+			#print("item", item)
 			for dict_ in LUT_list:
 				#print(dict_)
-				for key, value in dict_.items():
-					print("key", value)
-					if item == value:
+				full_name = f' look here {dict_["System_Series_Stage"]} {dict_["age_max_t"]}'
+				# print(full_name)
+
+				if item == dict_["System_Series_Stage"]:
+
+					columnSeriesObj_User['age_max_t']= dict_["age_max_t"]
+					columnSeriesObj_User['age_min_t']= dict_["age_min_t"]
+					columnSeriesObj_User['age_max_t_range']= dict_["age_max_t_range"]
+					columnSeriesObj_User['age_min_t_range']= dict_["age_min_t_range"]
+
+					print(columnSeriesObj_User)
+
+				# for key,value in dict_.items():
+				# 	#only want keys for system_sries_stage
+				# 	#then if thats a match with its value, then populate field with next keys value
+				# 	print("key val", key, value)
+					
+				# 	if item == value:
 						
-						print("MATCH", item,key)
-						# or get the dictionary here? but i dont think that makes sense
+				# 		print("matched", item, key, value)
+				# 		print (f"Match found between dictionary for {key, value}, {key[1]} and stratigraphy {item}")
 
-						print (f"Match found between dictionary for {key, value} and stratigraphy {item}")
-						
-						#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
+				# 		#if item == first key, then populate with value of second pair (for max of age_max_t)
 
-						columnSeriesObj_User['age_max_t']= value
+				# 	 	#now populate file age_max_t age_max_t_range age_min_t	age_min_t_range if the age is max of the age max cells provided and the min is min of the min cells provided
 
-					# elif item == index.get("Epoch"):
-					# 	pass
-					# 	#print (f"Match found between dictionary for Epoch {index['Epoch']} and stratigraphy {item}")
-					# elif item == index.get("Stage"):
-					# 	pass
-					# 	#print (f"Match found between dictionary for Stage {index['Stage']} and stratigraphy {item}")
-					# else:
-					# 	pass
-					# 	#print(f"No calculations performed on {item}")
+				# 		columnSeriesObj_User['age_max_t']= key["age_max_t"]
+				# 		print("success!", columnSeriesObj_User['age_max_t'])
 
 	# df1 = pd.merge(file, LUT, on='strat_age_max', how='outer', suffixes=('','_key'))
 	
