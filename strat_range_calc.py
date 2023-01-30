@@ -108,8 +108,6 @@ for filename in process_files_list:
 	strat_age_list = ['strat_age_max',
 						'strat_age_min']
 
-	
-
 	# make function?
 	file['strat_age'] = file['strat_age'].str.replace(r"\(|\)", "") #strip all parentheses
 	file[strat_age_list] = file['strat_age'].str.split(r'to|and',expand=True)
@@ -124,7 +122,12 @@ for filename in process_files_list:
 
 	# method 1
 	print(file)
-	out = pd.merge(file, LUT, on = ["strat_age_max", "System_Series_Stage"])
+	print (file.columns)
+	out = pd.merge(file, LUT[["System_Series_Stage","age_max_t", "age_max_t_range"]], left_on = "strat_age_max", right_on= "System_Series_Stage", how = 'left') #but only join the max dictionary values
+	out = pd.merge(out, LUT[["System_Series_Stage","age_min_t", "age_min_t_range"]], left_on = "strat_age_min", right_on= "System_Series_Stage", how = 'left') #but only join the min dictionary values
+
+	out = out.drop(columns = ['System_Series_Stage_x', 'System_Series_Stage_y'])
+	
 	print(out)
 
 	out.to_csv(file_export)
@@ -168,6 +171,6 @@ for filename in process_files_list:
 # # 	main(productlevel, bandproduct, startyear, endyear, field_threshold)
 
 
-# print("Completed at:", (time.strftime('%a %H:%M:%S')), f", see {out_dir}")
+print("Completed at:", (time.strftime('%a %H:%M:%S')), f", see {out_dir}")
 
 
