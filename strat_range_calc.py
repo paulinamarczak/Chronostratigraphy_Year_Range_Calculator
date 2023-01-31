@@ -51,9 +51,29 @@ process_files_list = []
 
 list_of_values_to_match = []
 
-## Get list of columns used for classifying chronostratigraphy
+# Eventually these will be user-selected
 
-LUT_chrono_columns = ['System', 'Epoch', 'Stage']
+input_range_columns = ['age_max_t',
+						'age_max_t_range',
+						'age_min_t',
+						'age_min_t_range']
+
+# Split incoming single-column range to two
+
+# Possibly user input if already split
+
+strat_age_list = ['strat_age_max',
+				'strat_age_min']
+
+# Values columns from LUT
+strat_age_Range_list = ['Max_Age_LUT',
+						'Max_Age_Range_LUT',
+						'Min_Age_LUT',
+						'Min_Age_Range_LUT']
+
+
+strat_population_dict = dict(zip(input_range_columns,strat_age_Range_list ))
+
 
 # Functions
 
@@ -73,14 +93,15 @@ print ('Gathering input files..')
 
 LUT = pd.read_csv('LUT.csv',  sep=',', encoding='cp1252')
 
+# Make this one a user input
 
-@click.command()
-@click.argument("data_folder")
-@click.argument("layer_type")
-@click.argument("scenario")
+Input_Strat_Field = 'strat_age'
 
 
-input_range_columns = 
+# @click.command()
+# @click.argument("data_folder")
+# @click.argument("layer_type")
+# @click.argument("scenario")
 
 
 # Format as list of dictionaries
@@ -113,19 +134,17 @@ for filename in process_files_list:
 	# todo: change to variable input
 	#todo: change to single versus multiple field inputs
 	#todo: conditions for 'upper/lower'
-
-	strat_age_list = ['strat_age_max',
-						'strat_age_min']
+	# Raise error class to make sure the inputs all have a matching output?
 
 	# make function?
-	file['strat_age'] = file['strat_age'].str.replace(r'\(|\)', '') #strip all parentheses
-	file[strat_age_list] = file['strat_age'].str.split(r'to|and',expand=True)
+	file[Input_Strat_Field] = file[Input_Strat_Field].str.replace(r'\(|\)', '') #strip all parentheses
+	file[strat_age_list] = file[Input_Strat_Field].str.split(r'to|and',expand=True)
 	
 
 	# Populate strat_age_max and strat_age_min with single range strat_age entries (E.g., "Jurassic")
 
 	for item in strat_age_list:
-		file[item] = file[item].fillna(file['strat_age'])
+		file[item] = file[item].fillna(file[Input_Strat_Field])
 
 	file['strat_age_max'] = file['strat_age_max'].str.strip()
 	file['strat_age_min'] = file['strat_age_min'].str.strip()
@@ -139,19 +158,21 @@ for filename in process_files_list:
 	file_export = os.path.join(out_dir, filename_no_path + '_out.csv')
 
 	# method 1
-	# print(file)
-	# print (file.columns)
-	out = pd.merge(file, LUT[['System_Series_Stage','age_max_t', 'age_max_t_range']], left_on = 'strat_age_max', right_on= 'System_Series_Stage', how = 'left') #but only join the max dictionary values
-	out = pd.merge(out, LUT[['System_Series_Stage','age_min_t', 'age_min_t_range']], left_on = 'strat_age_min', right_on= 'System_Series_Stage', how = 'left') #but only join the min dictionary values
 
-	out = out.drop(columns = ['strat_age_max', 'strat_age_min', 'System_Series_Stage_x', 'System_Series_Stage_y'])
-	
+	out = pd.merge(file, LUT[['System_Series_Stage_LUT','Max_Age_LUT', 'Max_Age_Range_LUT']], left_on = 'strat_age_max', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the max dictionary values
+	out = pd.merge(out, LUT[['System_Series_Stage_LUT','Min_Age_LUT', 'Min_Age_Range_LUT']], left_on = 'strat_age_min', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the min dictionary values
+
+	# out = out.drop(columns = ['strat_age_max', 'strat_age_min', 'System_Series_Stage_x', 'System_Series_Stage_y'])
+
+	print(file.columns.values)
+
 	# Populate only empty range values in origin dataset
-	for field in strat_age_list:
-		for item in input_range_columns:
-			file[item] = file[item].fillna(file['field'])
+	for key,val in strat_population_dict.items():
+			out[key] = out[key].fillna(out[val])
 
-	# print(out)
+	# remove excess LUT joined columns
+	
+	out.drop(columns=out.columns[-6:], axis=1,  inplace=True)
 
 	out.to_csv(file_export)
 

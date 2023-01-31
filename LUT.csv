@@ -1,4 +1,4 @@
-System_Series_Stage,age_max_t,age_max_t_range,age_min_t,age_min_t_range
+System_Series_Stage_LUT,Max_Age_LUT,Max_Age_Range_LUT,Min_Age_LUT,Min_Age_Range_LUT
 Quaternary,2.58,0,0,0
 Neogene,23.03,0,2.58,0
 Paleogene,66,0,23.03,0
