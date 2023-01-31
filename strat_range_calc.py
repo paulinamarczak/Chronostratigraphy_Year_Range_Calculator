@@ -22,8 +22,8 @@
 import os
 import time
 
-print ("Starting at:", (time.strftime('%a %H:%M:%S')))
-print ("Importing modules..")
+print ('Starting at:', (time.strftime('%a %H:%M:%S')))
+print ('Importing modules..')
 
 import shutil
 import pandas as pd
@@ -33,7 +33,7 @@ import re
 # Define paths
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-out_dir= os.path.join(script_dir, "out_dir")
+out_dir= os.path.join(script_dir, 'out_dir')
 
 # Make output path
 if not os.path.exists(out_dir):
@@ -53,7 +53,7 @@ list_of_values_to_match = []
 
 ## Get list of columns used for classifying chronostratigraphy
 
-LUT_chrono_columns = ["System", "Epoch", "Stage"]
+LUT_chrono_columns = ['System', 'Epoch', 'Stage']
 
 # Functions
 
@@ -69,9 +69,18 @@ def Find_uncertain_stratigraphy(item):
 
 # Get dataset of all stratigraphic units and their ranges, as well as user-inputted excel files
 
-print ("Gathering input files..")
+print ('Gathering input files..')
 
-LUT = pd.read_csv("LUT.csv",  sep=",", encoding='cp1252')
+LUT = pd.read_csv('LUT.csv',  sep=',', encoding='cp1252')
+
+
+@click.command()
+@click.argument("data_folder")
+@click.argument("layer_type")
+@click.argument("scenario")
+
+
+input_range_columns = 
 
 
 # Format as list of dictionaries
@@ -85,17 +94,17 @@ for index,row in LUT.iterrows():
 for r,d,f in os.walk(script_dir):
 	# for file in each sub directory
 	for file in f:
-		# if "LUT" not in file:
+		# if 'LUT' not in file:
 		# 	print(file)
 		prefixes = ['~$', 'LUT']
-		if file.endswith(".xlsx") and not file.startswith(tuple(prefixes)) or file.endswith(".xls") and not file ==("LUT.csv") and not file.endswith("out.csv"):
+		if file.endswith('.xlsx') and not file.startswith(tuple(prefixes)) or file.endswith('.xls') and not file.endswith('out.csv'):
 			process_files_list.append(os.path.join(r, file))
-			print(f"Appended {file} to analysis")
+			print(f'Appended {file} to analysis')
 
-print (f"Processing the following files: {process_files_list}")
+print (f'Processing the following files: {process_files_list}')
 
 for filename in process_files_list:
-	print("Calculating year ranges for", filename)
+	print('Calculating year ranges for', filename)
 	file = pd.read_excel(filename)
 
 	# Splitting input stratigraphic range into two columns for easier merging
@@ -109,68 +118,81 @@ for filename in process_files_list:
 						'strat_age_min']
 
 	# make function?
-	file['strat_age'] = file['strat_age'].str.replace(r"\(|\)", "") #strip all parentheses
+	file['strat_age'] = file['strat_age'].str.replace(r'\(|\)', '') #strip all parentheses
 	file[strat_age_list] = file['strat_age'].str.split(r'to|and',expand=True)
+	
+
+	# Populate strat_age_max and strat_age_min with single range strat_age entries (E.g., "Jurassic")
+
+	for item in strat_age_list:
+		file[item] = file[item].fillna(file['strat_age'])
+
 	file['strat_age_max'] = file['strat_age_max'].str.strip()
 	file['strat_age_min'] = file['strat_age_min'].str.strip()
 
+	print (file.columns)
+
 	#define export paths
 
-	filename_no_path = filename.split(".")[0].split("\\")[-1]
+	filename_no_path = filename.split('.')[0].split('\\')[-1]
 
-	file_export = os.path.join(out_dir, filename_no_path + "_out.csv")
+	file_export = os.path.join(out_dir, filename_no_path + '_out.csv')
 
 	# method 1
-	print(file)
-	print (file.columns)
-	out = pd.merge(file, LUT[["System_Series_Stage","age_max_t", "age_max_t_range"]], left_on = "strat_age_max", right_on= "System_Series_Stage", how = 'left') #but only join the max dictionary values
-	out = pd.merge(out, LUT[["System_Series_Stage","age_min_t", "age_min_t_range"]], left_on = "strat_age_min", right_on= "System_Series_Stage", how = 'left') #but only join the min dictionary values
+	# print(file)
+	# print (file.columns)
+	out = pd.merge(file, LUT[['System_Series_Stage','age_max_t', 'age_max_t_range']], left_on = 'strat_age_max', right_on= 'System_Series_Stage', how = 'left') #but only join the max dictionary values
+	out = pd.merge(out, LUT[['System_Series_Stage','age_min_t', 'age_min_t_range']], left_on = 'strat_age_min', right_on= 'System_Series_Stage', how = 'left') #but only join the min dictionary values
 
-	out = out.drop(columns = ['System_Series_Stage_x', 'System_Series_Stage_y'])
+	out = out.drop(columns = ['strat_age_max', 'strat_age_min', 'System_Series_Stage_x', 'System_Series_Stage_y'])
 	
-	print(out)
+	# Populate only empty range values in origin dataset
+	for field in strat_age_list:
+		for item in input_range_columns:
+			file[item] = file[item].fillna(file['field'])
+
+	# print(out)
 
 	out.to_csv(file_export)
 
 
 	#method 2
-	for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
+	# for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
 
-		columnSeriesObj_User = file[User_column]
-		list_of_values_ = columnSeriesObj_User.values.tolist()
+	# 	columnSeriesObj_User = file[User_column]
+	# 	list_of_values_ = columnSeriesObj_User.values.tolist()
 
-		for item in list_of_values_:
-			if item is not None and item !="nan" and Find_uncertain_stratigraphy(item) == False: # Can only populate where stratigraphy has been defined
-				list_of_values_to_match.append(item)
-			else: 
-				continue
+	# 	for item in list_of_values_:
+	# 		if item is not None and item !='nan' and Find_uncertain_stratigraphy(item) == False: # Can only populate where stratigraphy has been defined
+	# 			list_of_values_to_match.append(item)
+	# 		else: 
+	# 			continue
 
-		# match user record with a dictionary reference
+	# 	# match user record with a dictionary reference
 
-		for item in list_of_values_to_match:
-			#print("item", item)
-			for dict_ in LUT_list:
-				#print(dict_)
-				full_name = f' look here {dict_["System_Series_Stage"]} {dict_["age_max_t"]}'
-				# print(full_name)
+	# 	for item in list_of_values_to_match:
+	# 		#print('item', item)
+	# 		for dict_ in LUT_list:
+	# 			#print(dict_)
+	# 			# print(full_name)
 
-				if item == dict_["System_Series_Stage"]:
+	# 			if item == dict_['System_Series_Stage']:
 
-					columnSeriesObj_User['age_max_t']= dict_["age_max_t"]
-					columnSeriesObj_User['age_min_t']= dict_["age_min_t"]
-					columnSeriesObj_User['age_max_t_range']= dict_["age_max_t_range"]
-					columnSeriesObj_User['age_min_t_range']= dict_["age_min_t_range"]
+	# 				columnSeriesObj_User['age_max_t']= dict_['age_max_t']
+	# 				columnSeriesObj_User['age_min_t']= dict_['age_min_t']
+	# 				columnSeriesObj_User['age_max_t_range']= dict_['age_max_t_range']
+	# 				columnSeriesObj_User['age_min_t_range']= dict_['age_min_t_range']
 
-					print(columnSeriesObj_User)
+	# 				print(columnSeriesObj_User)
 
 
 
 # # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
 
-# # if __name__ == "__main__":
+# # if __name__ == '__main__':
 # # 	main(productlevel, bandproduct, startyear, endyear, field_threshold)
 
 
-print("Completed at:", (time.strftime('%a %H:%M:%S')), f", see {out_dir}")
+print('Completed at:', (time.strftime('%a %H:%M:%S')), f', see {out_dir}')
 
 

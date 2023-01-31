@@ -3,7 +3,7 @@ Quaternary,2.58,0,0,0
 Neogene,23.03,0,2.58,0
 Paleogene,66,0,23.03,0
 Cretaceous,145,0,66,0
-Jurrasic,201.3,0.2,145,0
+Jurassic,201.3,0.2,145,0
 Triassic,251.902,0.024,201.3,0.2
 Permian,298.9,0.15,251.902,0.024
 Carboniferous,358.9,0.4,298.9,0.15
@@ -24,8 +24,8 @@ Paleocene,66,0,56,0
 Upper Cretaceous,100.5,0,66,0
 Lower Cretaceous,145,0,100.5,0
 Upper Jurrasic,163.5,1,145,0
-Middle Jurrasic,174.1,1,163.5,1
-Lower Jurrasic,201.3,0.2,174.1,1
+Middle Jurassic,174.1,1,163.5,1
+Lower Jurassic,201.3,0.2,174.1,1
 Upper Triassic,237,0,201.3,0.2
 Middle Triassic,247.2,0,237,0
 Lower Triassic,251.902,0.024,247.2,0
