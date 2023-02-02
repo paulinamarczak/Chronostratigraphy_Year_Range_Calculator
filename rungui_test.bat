@@ -28,10 +28,7 @@ set python_exe= "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\pytho
 
 rem Configure the field name in the script
 
-rem %python_exe% ".\strat_range_calc.py" strat_age "age_max_t age_max_t_range age_min_t age_min_t_range"
-
-
-%python_exe% ".\strat_range_calc.py"
+%python_exe% ".\test_gui_customtkinter.py"
 
 
 pause

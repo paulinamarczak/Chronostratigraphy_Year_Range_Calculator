@@ -20,33 +20,40 @@ This calculator determines any outstanding date ranges for a given chronostratig
 
 Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the version 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:
 
-            System      Epoch    Stage   age_max   age_max_ age_min  age_min_
-            Quaternary  Holocene Megh... 0.0042    0       0       0
+            System      Max_Age_LUT   Max_Age_Range_LUT Min_Age_LUT  Min_Age_Range_LUT
+            Quaternary  2.58           0                0            0
 
 The columns are described below:
 
-    age_max 
+`Max_Age_LUT` 
 
 is defined as the oldest age of the given stratigraphic unit.
 
-    age_max_ 
+`Max_Age_Range_LUT`
 
 is defined as any year range estimates associated with the oldest age.
 
-    age_min
+`Min_Age_LUT`
 
 is defined as the most recent age of the given stratigraphic unit.
 
-    age_min_
+`Min_Age_Range_LUT`
 
 is defined as any year range estimates associated with the most recent age.
 
-For an example, refer to the Quaternary system record above. The age_max is 0.0042, which is the oldest age that is classified under Quaternary. 
+For an example, refer to the Quaternary system record above. The Max_Age_LUT is 2.58, which is the oldest age that is classified under Quaternary. 
+
+Records that are uncertain (i.e., they contain a question mark) will not be populated.
 
 ## User-Editable Parameters:
 
 * You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.
-* This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.
+* This script requires your inputs to contain at least one 'from' and one 'to' System/Period/Series/Epoch/Stage/Age column. Alternatively, you can supply one column which specifies a 'from' and 'to' in the form of:
+
+`Mesoproterozoic to Neoproterozoic`
+
+`Jurassic`
+
 * You can set the name of the input column as an input environment variable. 
 * The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.
 
@@ -74,10 +81,10 @@ Here is my input file, "stratigraphy_2023_12_08.xlsx".
 
 After double-clicking the runpy.bat, my file will be converted to
 
-        strat_age                       strat_age_min       strat_age_max   age_max
-        Devonian (and Carboniferous)    Devonian            Carboniferous   419.2
-        Carboniferous to Permian        Carboniferous       Permian         254.14
-        Devonian?                       (blank cell)        (blank cell)    (blank cell)
+        strat_age                      age_max
+        Devonian (and Carboniferous)   419.2
+        Carboniferous to Permian       254.14
+        Devonian?                      (blank cell)
 
 as "stratigraphy_2023_12_08_out.xlsx" in the subdirectory /out.
 

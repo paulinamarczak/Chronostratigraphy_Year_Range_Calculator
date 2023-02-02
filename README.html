@@ -1094,27 +1094,28 @@ body .markdown-body
 <a href="https://www.tomshardware.com/how-to/create-python-executable-applications">https://www.tomshardware.com/how-to/create-python-executable-applications</a></p>
 <p>This calculator determines any outstanding date ranges for a given chronostratigraphic spreadsheet. </p>
 <p>Given an input Excel file (.xls, .xlsx), it populates the associated year ranges for the given stratigraphic ranges based on the version 2022/02 Chronostratigraphic Chart. The associated ranges are included in the lookup table (LUT.csv), which looks like this:</p>
-<pre><code>        System      Epoch    Stage   age_max   age_max_ age_min  age_min_
-        Quaternary  Holocene Megh... 0.0042    0       0       0
+<pre><code>        System      Max_Age_LUT   Max_Age_Range_LUT Min_Age_LUT  Min_Age_Range_LUT
+        Quaternary  2.58           0                0            0
 </code></pre>
 <p>The columns are described below:</p>
-<pre><code>age_max
-</code></pre>
+<p><code>Max_Age_LUT</code> </p>
 <p>is defined as the oldest age of the given stratigraphic unit.</p>
-<pre><code>age_max_
-</code></pre>
+<p><code>Max_Age_Range_LUT</code></p>
 <p>is defined as any year range estimates associated with the oldest age.</p>
-<pre><code>age_min
-</code></pre>
+<p><code>Min_Age_LUT</code></p>
 <p>is defined as the most recent age of the given stratigraphic unit.</p>
-<pre><code>age_min_
-</code></pre>
+<p><code>Min_Age_Range_LUT</code></p>
 <p>is defined as any year range estimates associated with the most recent age.</p>
-<p>For an example, refer to the Quaternary system record above. The age_max is 0.0042, which is the oldest age that is classified under Quaternary. </p>
+<p>For an example, refer to the Quaternary system record above. The Max_Age_LUT is 2.58, which is the oldest age that is classified under Quaternary. </p>
+<p>Records that are uncertain (i.e., they contain a question mark) will not be populated.</p>
 <h2 id="user-editable-parameters">User-Editable Parameters:<a class="headerlink" href="#user-editable-parameters" title="Permanent link"></a></h2>
 <ul>
 <li>You can edit the age values to give different ranges if you like. To do this, change them in the LUT.csv copy of the /parent folder.</li>
-<li>This script requires your inputs to contain at least a System/Period column, and Series/Epoch or Stage/Age if possible.</li>
+<li>This script requires your inputs to contain at least one &lsquo;from&rsquo; and one &lsquo;to&rsquo; System/Period/Series/Epoch/Stage/Age column. Alternatively, you can supply one column which specifies a &lsquo;from&rsquo; and &lsquo;to&rsquo; in the form of:</li>
+</ul>
+<p><code>Mesoproterozoic to Neoproterozoic</code></p>
+<p><code>Jurassic</code></p>
+<ul>
 <li>You can set the name of the input column as an input environment variable. </li>
 <li>The output is a resultant .csv file with the populated ranges. Ranges that were already populated are not overwritten unless specified, which is the default setting.</li>
 </ul>
@@ -1132,10 +1133,10 @@ body .markdown-body
     Devonian?                    (blank cell)
 </code></pre>
 <p>After double-clicking the runpy.bat, my file will be converted to</p>
-<pre><code>    strat_age                       strat_age_min       strat_age_max   age_max
-    Devonian (and Carboniferous)    Devonian            Carboniferous   419.2
-    Carboniferous to Permian        Carboniferous       Permian         254.14
-    Devonian?                       (blank cell)        (blank cell)    (blank cell)
+<pre><code>    strat_age                      age_max
+    Devonian (and Carboniferous)   419.2
+    Carboniferous to Permian       254.14
+    Devonian?                      (blank cell)
 </code></pre>
 <p>as &ldquo;stratigraphy_2023_12_08_out.xlsx&rdquo; in the subdirectory /out.</p>
 <p>As you can see, strat_age values that have question marks are not calculated in the age_max column. The calculator populates empty cells inline, meaning the original age_max column is populated. The calculator does not overwrite existing values in age_max and does not calculate values for any other input strat_age format.</p>

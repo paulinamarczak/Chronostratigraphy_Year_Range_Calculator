@@ -1,23 +1,7 @@
 # Chronostratigraphy Year Range Calculator
 # Author: Paulina Marczak
 
-# iteratively grab excel files to process
-
-# convert to pandas.df
-
-# identify columns for which stratigraphy code exists
-
 # identify by column name not by index, also name can differ, maybe add a variable in batch file for column name
-
-# does only the age column matter? 
-
-# add new empty field for min range, max age, and age +/- range
-
-# populate empty fields using data dictionary
-
-# data dictionary can be text file included with script?
-
-# ask george what the accepted inputs should be, whether the code should be flexible for multiple columns or just one coded column, or preferrably just the Stage/Age column
 
 import os
 import time
@@ -29,8 +13,12 @@ import shutil
 import pandas as pd
 import csv
 import re
+import click
+import tkinter as tk
+import customtkinter
+from tkinter import filedialog
 
-# Define paths
+## Paths
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir= os.path.join(script_dir, 'out_dir')
@@ -39,7 +27,10 @@ out_dir= os.path.join(script_dir, 'out_dir')
 if not os.path.exists(out_dir):
 	os.makedirs(out_dir)
 
-# Lists
+
+## Lists
+
+# Build LUT dictionaries
 
 LUT_list = []
 
@@ -60,32 +51,27 @@ input_range_columns = ['age_max_t',
 
 # Split incoming single-column range to two
 
-# Possibly user input if already split
+# Possibly user input if already split into two, otherwise they are split from 1 input and renamed as this
 
-strat_age_list = ['strat_age_max',
+strat_age_list_split = ['strat_age_max',
 				'strat_age_min']
 
-# Values columns from LUT
+# Values columns from LUT - static
+
 strat_age_Range_list = ['Max_Age_LUT',
 						'Max_Age_Range_LUT',
 						'Min_Age_LUT',
 						'Min_Age_Range_LUT']
 
+## Functions
 
-strat_population_dict = dict(zip(input_range_columns,strat_age_Range_list ))
-
-
-# Functions
-
-## Make a rule for which records should be populated, which excludes uncertain classifications, as marked by '?'
-
-def Find_uncertain_stratigraphy(item):
+def Find_uncertain_stratigraphy(item): # Makes a rule for which records should be populated, which excludes uncertain classifications, as marked by '?'
 
 	search_ = bool(re.search(r'.*?([a-z_]*\?+[a-z_]*).*?',str(item)))
 	return search_
 
 
-# Define inputs
+## Define inputs
 
 # Get dataset of all stratigraphic units and their ranges, as well as user-inputted excel files
 
@@ -93,127 +79,164 @@ print ('Gathering input files..')
 
 LUT = pd.read_csv('LUT.csv',  sep=',', encoding='cp1252')
 
-# Make this one a user input
+# Make this one a user input - possible to have two columns for this
 
-Input_Strat_Field = 'strat_age'
+strat_age_list = 'strat_age'
 
-
-# @click.command()
-# @click.argument("data_folder")
-# @click.argument("layer_type")
-# @click.argument("scenario")
-
-
-# Format as list of dictionaries
+# Need dictionary structure for matching LUT with user data
 
 for index,row in LUT.iterrows():
 	d=row.to_dict()
 	LUT_list.append(d)
 
-# Main
+## Main
 
-for r,d,f in os.walk(script_dir):
-	# for file in each sub directory
-	for file in f:
-		# if 'LUT' not in file:
-		# 	print(file)
-		prefixes = ['~$', 'LUT']
-		if file.endswith('.xlsx') and not file.startswith(tuple(prefixes)) or file.endswith('.xls') and not file.endswith('out.csv'):
-			process_files_list.append(os.path.join(r, file))
-			print(f'Appended {file} to analysis')
 
-print (f'Processing the following files: {process_files_list}')
+# @click.command()
+# @click.argument("input_range_columns") # Value fields (max, max range, min, min range) in user data
+# @click.argument("strat_age_list") # Category fields to classify chronostratigraphy in user data
 
-for filename in process_files_list:
-	print('Calculating year ranges for', filename)
-	file = pd.read_excel(filename)
 
-	# Splitting input stratigraphic range into two columns for easier merging
-	#Ex., 'Carbiniferous to Permian' becomes 'Carbiniferous' and 'Permian'
+def main(input_range_columns, strat_age_list):
 
-	# todo: change to variable input
-	#todo: change to single versus multiple field inputs
-	#todo: conditions for 'upper/lower'
-	# Raise error class to make sure the inputs all have a matching output?
+	# Dict for comparing LUT field values with user values 
 
-	# make function?
-	file[Input_Strat_Field] = file[Input_Strat_Field].str.replace(r'\(|\)', '') #strip all parentheses
-	file[strat_age_list] = file[Input_Strat_Field].str.split(r'to|and',expand=True)
+	strat_population_dict = dict(zip(input_range_columns,strat_age_Range_list))
+
+	for r,d,f in os.walk(script_dir):
+		
+		for file in f:
+			prefixes = ['~$', 'LUT']
+			if file.endswith('.xlsx') and not file.startswith(tuple(prefixes)) or file.endswith('.xls') and not file.endswith('out.csv'):
+				process_files_list.append(os.path.join(r, file))
+				print(f'Appended {file} to analysis')
+
+	print (f'Processing the following files: {process_files_list}')
+
+	for filename in process_files_list:
+
+		print('Calculating year ranges for', filename)
+		file = pd.read_excel(filename)
+
+		input_strat_list = strat_age_list.split(" ")
+
+		# Splitting input stratigraphic range into two columns for easier merging
+		#Ex., 'Carbiniferous to Permian' becomes 'Carbiniferous' and 'Permian'
+
+		for input_strat_field in input_strat_list: #input_strat_field is 'strat_FIELD_x'
+
+			file[input_strat_field] = file[input_strat_field].str.replace(r'\(|\)', '', regex = True) #strip all parentheses
+
+			file[strat_age_list_split] = file[input_strat_field].str.split(r'to|and',expand=True) #split into two fields based on to or and in cell value
+			
+			# Populate strat_age_max and strat_age_min with single range strat_age entries (E.g., "Jurassic")
+
+			for item in strat_age_list_split:
+
+				file[item] = file[item].fillna(file[input_strat_field])
+
+				file[item] = file[item].str.strip()
+				file[item] = file[item].str.strip()
+
+			filename_no_path = filename.split('.')[0].split('\\')[-1]
+
+			file_export = os.path.join(out_dir, filename_no_path + '_out.csv')
+
+			#merge file with LUT if exact match found for system, epoch, or stage
+			out = pd.merge(file, LUT[['System_Series_Stage_LUT','Max_Age_LUT', 'Max_Age_Range_LUT']], left_on = 'strat_age_max', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the max dictionary values
+			out = pd.merge(out, LUT[['System_Series_Stage_LUT','Min_Age_LUT', 'Min_Age_Range_LUT']], left_on = 'strat_age_min', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the min dictionary values
+
+			# Populate only empty range values in origin dataset since we don't want to overwrite entries that are manually entered
+			for key,val in strat_population_dict.items():
+					out[key] = out[key].fillna(out[val])
+
+			print(out.columns)
+
+			# Don't want to keep intermediary joined columns
+			out.drop(columns=out.columns[-8:], axis=1,  inplace=True)
+
+			print(out.columns)
+
+			out.to_csv(file_export)
+
+
+## GUI 
+
+# customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
+# customtkinter.set_default_color_theme("dark-blue")  # Themes: blue (default), dark-blue, green
+
+# app = customtkinter.CTk()  # create CTk window like you do with the Tk window
+# app.geometry("400x240")
+# app.title("CustomTkinter simple_example.py")
+
+# def button_callback():
+#     print("Button click", combobox_1.get())
+
+# def browse_button():
+#     # Allow user to select a directory and store it in global var
+#     # called folder_path
+#     global folder_path
+#     filename = filedialog.askdirectory()
+#     folder_path.set(filename)
+#     print(filename)
+
+
+# def browseFiles():
+#     filename = filedialog.askopenfilename(initialdir = "/",
+#                                           title = "Select a File",
+#                                           filetypes = (("Text files",
+#                                                         "*.txt*"),
+#                                                        ("all files",
+#                                                         "*.*")))
+	  
+#     # Change label contents
+#     label_file_explorer.configure(text="File Opened: "+filename)
+	  
+
+
+# # Use CTkButton instead of tkinter Button
+# frame_1 = customtkinter.CTkFrame(master=app)
+# frame_1.pack(pady=20, padx=60, fill="both", expand=True)
+
+# optionmenu_1 = customtkinter.CTkOptionMenu(frame_1, values=["Get", "excel_columns"])
+# optionmenu_1.pack(pady=10, padx=10)
+# optionmenu_1.set("CTkOptionMenu")
+
+## GUI
+def select_file_path():
+    root.filename = filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
+    df = pd.read_excel(root.filename)
+    columns = df.columns
+    tkvar.set(columns[0]) # set default value
+    column_menu = tk.OptionMenu(root, tkvar, *columns)
+    column_menu.pack()
+
+root = tk.Tk()
+root.title("Chronostratigraphy Year Range Calculator")
+root.geometry("300x100")
+
+
+select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
+select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
+select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
+select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
+
+select_file_button.pack()
+
+tkvar = tk.StringVar(root)
+
+
+if __name__ == '__main__':
+	#main(input_range_columns, strat_age_list)
 	
-
-	# Populate strat_age_max and strat_age_min with single range strat_age entries (E.g., "Jurassic")
-
-	for item in strat_age_list:
-		file[item] = file[item].fillna(file[Input_Strat_Field])
-
-	file['strat_age_max'] = file['strat_age_max'].str.strip()
-	file['strat_age_min'] = file['strat_age_min'].str.strip()
-
-	print (file.columns)
-
-	#define export paths
-
-	filename_no_path = filename.split('.')[0].split('\\')[-1]
-
-	file_export = os.path.join(out_dir, filename_no_path + '_out.csv')
-
-	# method 1
-
-	out = pd.merge(file, LUT[['System_Series_Stage_LUT','Max_Age_LUT', 'Max_Age_Range_LUT']], left_on = 'strat_age_max', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the max dictionary values
-	out = pd.merge(out, LUT[['System_Series_Stage_LUT','Min_Age_LUT', 'Min_Age_Range_LUT']], left_on = 'strat_age_min', right_on= 'System_Series_Stage_LUT', how = 'left') #but only join the min dictionary values
-
-	# out = out.drop(columns = ['strat_age_max', 'strat_age_min', 'System_Series_Stage_x', 'System_Series_Stage_y'])
-
-	print(file.columns.values)
-
-	# Populate only empty range values in origin dataset
-	for key,val in strat_population_dict.items():
-			out[key] = out[key].fillna(out[val])
-
-	# remove excess LUT joined columns
-	
-	out.drop(columns=out.columns[-6:], axis=1,  inplace=True)
-
-	out.to_csv(file_export)
+	root.mainloop()
+	main(input_range_columns, strat_age_list)
 
 
-	#method 2
-	# for User_column in file.iloc[:, [-1,-2]]: #always going to be last two indices because new columns
+print('Completed at:', (time.strftime('%a %H:%M:%S')), f', see output file at {out_dir}')
 
-	# 	columnSeriesObj_User = file[User_column]
-	# 	list_of_values_ = columnSeriesObj_User.values.tolist()
-
-	# 	for item in list_of_values_:
-	# 		if item is not None and item !='nan' and Find_uncertain_stratigraphy(item) == False: # Can only populate where stratigraphy has been defined
-	# 			list_of_values_to_match.append(item)
-	# 		else: 
-	# 			continue
-
-	# 	# match user record with a dictionary reference
-
-	# 	for item in list_of_values_to_match:
-	# 		#print('item', item)
-	# 		for dict_ in LUT_list:
-	# 			#print(dict_)
-	# 			# print(full_name)
-
-	# 			if item == dict_['System_Series_Stage']:
-
-	# 				columnSeriesObj_User['age_max_t']= dict_['age_max_t']
-	# 				columnSeriesObj_User['age_min_t']= dict_['age_min_t']
-	# 				columnSeriesObj_User['age_max_t_range']= dict_['age_max_t_range']
-	# 				columnSeriesObj_User['age_min_t_range']= dict_['age_min_t_range']
-
-	# 				print(columnSeriesObj_User)
-
-
-
-# # def main(productlevel_list, bandproduct_list, startyear,endyear, field_threshold):
-
-# # if __name__ == '__main__':
-# # 	main(productlevel, bandproduct, startyear, endyear, field_threshold)
-
-
-print('Completed at:', (time.strftime('%a %H:%M:%S')), f', see {out_dir}')
-
-
+# todo: change to variable input
+#todo: change to single versus multiple field inputs
+#todo: conditions for 'upper/lower'
+# Raise error class to make sure the inputs all have a matching output?
+#overwrite the nans?
