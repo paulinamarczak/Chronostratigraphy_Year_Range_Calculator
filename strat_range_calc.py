@@ -16,7 +16,7 @@ import re
 import click
 import tkinter as tk
 import customtkinter
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 
 ## Paths
 
@@ -208,20 +208,52 @@ def select_file_path():
     df = pd.read_excel(root.filename)
     columns = df.columns
     tkvar.set(columns[0]) # set default value
+
     column_menu = tk.OptionMenu(root, tkvar, *columns)
     column_menu.pack()
 
+    return file_path
+
+    #Make 3 more for the other input variables?
+
+def get_columns(file_path):
+    df = pd.read_excel(file_path)
+    columns = df.columns.tolist()
+    return columns
+
+def update_dropdown(*args):
+    file_path = select_file_path()
+    columns = get_columns(file_path)
+    column_var.set(columns[0])
+    column_dropdown['values'] = columns
+
 root = tk.Tk()
 root.title("Chronostratigraphy Year Range Calculator")
-root.geometry("300x100")
+root.geometry("500x500")
 
 
-select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
-select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
-select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
-select_file_button = tk.Button(text = "Select a File Path that contains the files you want year ranges calculated for", command = select_file_path)
+file_path = tk.StringVar()
+column_var = tk.StringVar()
+
+select_file_button = tk.Button(text = "Select the column where your max year is", command = select_file_path)
+select_file_button1 = tk.Button(text = "Select the column where your max year range is", command = select_file_path)
+select_file_button2 = tk.Button(text = "Select the column where your min year is", command = select_file_path)
+select_file_button3 = tk.Button(text = "Select the column where your min year range is", command = select_file_path)
+select_file_button4 = tk.Button(text = "Select just one column which describes the Chronostratigraphy", command = select_file_path)
+select_file_button5 = tk.Button(text = "Select two columns which describes the Chronostratigraphy", command = select_file_path)
+
 
 select_file_button.pack()
+select_file_button1.pack()
+select_file_button2.pack()
+select_file_button3.pack()
+select_file_button4.pack()
+select_file_button5.pack()
+
+
+column_dropdown = ttk.Combobox(root, textvariable=column_var)
+column_dropdown.pack()
+
 
 tkvar = tk.StringVar(root)
 
