@@ -276,17 +276,22 @@ class MainApp:
 		def optionmenu_callback(choice):
 			print("optionmenu dropdown clicked:", choice)
 
+		# def select_file_path():
+		# 	self.filename = filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
+		# 	df = pd.read_excel(self.filename)
+		# 	columns = df.columns
+		# 	tkvar.set(columns[0]) # set default value
+
+		# 	column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
+		# 	column_menu.pack()
+		# 	column_menu.set(columns[0])  # set initial value
+
+		# 	return file_path
+
 		def select_file_path():
-			self.filename = customtkinter.filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
-			df = pd.read_excel(self.filename)
-			columns = df.columns
-			tkvar.set(columns[0]) # set default value
-
-			column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
-			column_menu.pack()
-			column_menu.set(columns[0])  # set initial value
-
-			return file_path
+			file_path = filedialog.askopenfilename(filetypes = (("Excel files", "*.xlsx"), ("All files", "*.*")))
+			if file_path:
+				var.set(file_path)
 
 			#Make 3 more for the other input variables?
 
@@ -303,27 +308,32 @@ class MainApp:
 
 
 		# create textbox
-		self.texty = tk.Text(self.master, height = 5, width = 52)
+		self.texty = tk.Text(self.master, height = 2, width = 60)
 		self.texty.pack()
+		self.texty.config(font=("Arial", 10))
 		#self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-		self.intro_spiel = tk.Label(self.master, text = "Chronostratigraphy Age Range Calculator\n\n" + "The chronostratigraphy year range calculator takes in a.xlsx or .xls files.\n\n")
-		self.intro_spiel.pack()
-
+		self.intro_spiel_t = self.texty.insert(tk.END,"The input must be in an .xlsx or .xls file. It can also take in \nmultiple files." + " See the README.pdf for full documentation.")
+		# self.intro_spiel = tk.Label(self.master, text = "Chronostratigraphy Age Range Calculator\n\n" + "The input must be in an .xlsx or .xls file. It can also take in multiple files.  \n\n")
 
 		# create dropdown menu for selecting chrono category columns
 		self.strat_age_list_label = tk.Label(self.master, text="Select the first chronostratigraphy category column")
 		self.strat_age_list_label.pack()
 		self.strat_age_list_var = tk.StringVar(self.master)
 		self.strat_age_list_var.set("strat_age")
-		self.strat_age_list_dropdown = tk.OptionMenu(self.master, self.strat_age_list_var, "strat_age")
+		self.strat_age_list_dropdown = tk.Button(self.master, text = "Select a file that will populate the fields", command = select_file_path)
 		self.strat_age_list_dropdown.pack()
+
+		var = tk.StringVar(root)
+		var.set("Using the following Excel file for configuration")
+		file_path_menu = tk.OptionMenu(root, var, '')
+		file_path_menu.pack()
 
 		# create dropdown menu for selecting chrono category columns
 		self.strat_age_list_label = tk.Label(self.master, text="Select the second chronostratigraphy category column (Optional)")
 		self.strat_age_list_label.pack()
 		self.strat_age_list_var = tk.StringVar(self.master)
 		self.strat_age_list_var.set("strat_age")
-		self.strat_age_list_dropdown = tk.OptionMenu(self.master, self.strat_age_list_var, "strat_age")
+		self.strat_age_list_dropdown = tk.OptionMenu(self.master, self.strat_age_list_var, command = get_columns(file_path))
 		self.strat_age_list_dropdown.pack()
 
 

@@ -28,7 +28,7 @@ set python_exe= "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\pytho
 
 rem Configure the field name in the script
 
-%python_exe% ".\test_gui_customtkinter.py"
+%python_exe% ".\test_gui_customtkinter_1.py"
 
 
 pause
