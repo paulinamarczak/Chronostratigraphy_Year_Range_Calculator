@@ -1,25 +1,28 @@
 import tkinter as tk
 import pandas as pd
+import tkinter.filedialog as fd
 
 def populate_options():
-	# Load the Excel file into a pandas dataframe
-	df = pd.read_excel("sampleData_AgeUpdate.xlsx")
-	# Get a list of unique values in the specified column
-	options = df.columns.tolist()
-	# Clear any existing options in the option menu
-	option_field["menu"].delete(0, "end")
-	# Insert the new options into the option menu
-	for option in options:
-		option_field["menu"].add_command(label=option, command=tk._setit(var, option))
+    # Open a file dialog to select the Excel file
+    file_path = fd.askopenfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
+    # Load the selected Excel file into a pandas dataframe
+    df = pd.read_excel(file_path)
+    # Get a list of column names in the dataframe
+    options = df.columns.tolist()
+    # Clear any existing options in the option menu
+    option_field["menu"].delete(0, "end")
+    # Insert the new options into the option menu
+    for option in options:
+        option_field["menu"].add_command(label=option, command=tk._setit(var, option))
 
 # Create the Tkinter window
 root = tk.Tk()
 root.title("Option Field Example")
 
 # Create a label and option field
-label = tk.Label(root, text="Select an option:")
+label = tk.Label(root, text="Select a column:")
 var = tk.StringVar(root)
-var.set("Select an option")
+var.set("Select a column")
 option_field = tk.OptionMenu(root, var, [])
 label.pack()
 option_field.pack()
