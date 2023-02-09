@@ -276,15 +276,15 @@ class MainApp:
 		def optionmenu_callback(choice):
 			print("optionmenu dropdown clicked:", choice)
 
-		# def select_file_path():
-		# 	self.filename = filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
-		# 	df = pd.read_excel(self.filename)
-		# 	columns = df.columns
-		# 	tkvar.set(columns[0]) # set default value
+		def select_file_path():
+			self.filename = filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
+			df = pd.read_excel(self.filename)
+			columns = df.columns
+			tkvar.set(columns[0]) # set default value
 
-		# 	column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
-		# 	column_menu.pack()
-		# 	column_menu.set(columns[0])  # set initial value
+			column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
+			column_menu.pack()
+			column_menu.set(columns[0])  # set initial value
 
 		# 	return file_path
 
