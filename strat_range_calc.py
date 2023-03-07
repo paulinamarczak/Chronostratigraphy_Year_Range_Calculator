@@ -5,6 +5,7 @@
 
 import os
 import time
+import sys
 
 print ('Starting at:', (time.strftime('%a %H:%M:%S')))
 print ('Importing modules..')
@@ -16,21 +17,27 @@ import re
 import click
 import tkinter as tk
 import customtkinter
+
 # import tkinterweb
 from tkinter import filedialog, ttk
 import tkinter.messagebox
 from PIL import Image, ImageTk
+
+#streamlit
+import numpy as np
+import streamlit as st
+from streamlit.web import cli as stcli
 
 
 ## Paths
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir= os.path.join(script_dir, 'out_dir')
+filename = "strat_range_calc.py"
 
 # Make output path
 if not os.path.exists(out_dir):
 	os.makedirs(out_dir)
-
 
 ## Lists
 
@@ -67,6 +74,36 @@ strat_age_Range_list = ['Max_Age_LUT',
 						'Min_Age_LUT',
 						'Min_Age_Range_LUT']
 
+
+#Streamlit
+
+
+#####################################################################################################
+# Title
+#####################################################################################################
+
+st.set_page_config(page_title = "Chronostratigraphy Year Range Calculator")
+st.title("Chronostratigraphy Year Range Calculator")
+st.write("Contact Information: Paulina Marczak, MSc | paulina.marczak@gov.bc.ca")
+
+st.write("-------------")
+st.write("Read the documentation at https://htmlpreview.github.io/?https://github.com/paulinamarczak/Chronostratigraphy_Year_Range_Calculator/blob/main/README.html")
+
+#####################################################################################################
+# Load user data
+#####################################################################################################
+
+st.subheader("Upload your data as an Excel file")
+
+types = ["xls", "xlsx"]
+
+uploaded_file = st.file_uploader(label = "", type = types)
+
+if uploaded_file is not None:
+	data = pd.read_csv(uploaded_file, skiprows = 0)
+
+
+
 ## Functions
 
 def Find_uncertain_stratigraphy(item): # Makes a rule for which records should be populated, which excludes uncertain classifications, as marked by '?'
@@ -95,11 +132,12 @@ for index,row in LUT.iterrows():
 
 ## Main
 
-
 # @click.command()
 # @click.argument("input_range_columns") # Value fields (max, max range, min, min range) in user data
 # @click.argument("strat_age_list") # Category fields to classify chronostratigraphy in user data
 
+def convert_df(df):
+	return df.to_csv().encode("utf-8")
 
 def main(input_range_columns, strat_age_list):
 
@@ -161,234 +199,43 @@ def main(input_range_columns, strat_age_list):
 
 			print(out.columns)
 
-			out.to_csv(file_export)
+			return out
 
 
+#####################################################################################################
+# Chronostratigraphy-added data
+#####################################################################################################
 
-## GUI - manual
+if uploaded_file is not None:
+	st.write("")
+	st.subheader("Argide-corrected data")
+	st.write("")
 
-class App(customtkinter.CTk):
-	def __init__(self):
-		super().__init__()
+	st.dataframe(data)
 
-		self.title("Chronostratigraphy Year Range Calculator v 1.0")
-		self.geometry("500x500")
-		self.wm_attributes('-toolwindow', 'True')
-		self.wm_iconbitmap('img/test.ico') # needs to be updated in future version of customtkinter to work here
-		customtkinter.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
-		customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
+	st.write("")
 
-		 # configure grid layout (4x4)
-		# self.grid_columnconfigure(1, weight=1)
-		# self.grid_columnconfigure((2, 3), weight=0)
-		# self.grid_rowconfigure((0, 1, 2), weight=1)
+	# Download button for RFC model results
 
+	file_name = st.text_input(label = "Input file name (incude .csv)")
 
-		def optionmenu_callback(choice):
-			print("optionmenu dropdown clicked:", choice)
+	@st.cache
+	def convert_df(df):
+		return df.to_csv(index = False).encode("utf-8")
 
-		def select_file_path():
-			self.filename = customtkinter.filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
-			df = pd.read_excel(self.filename)
-			columns = df.columns
-			tkvar.set(columns[0]) # set default value
+	corrected_data_download = convert_df(out)
+	st.download_button(label = "Download corrected data", data = corrected_data_download, file_name = file_name, mime = "text/csv")
 
-			column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
-			column_menu.pack()
-			column_menu.set(columns[0])  # set initial value
-
-			return file_path
-
-			#Make 3 more for the other input variables?
-
-		def get_columns(file_path):
-			df = pd.read_excel(file_path)
-			columns = df.columns.tolist()
-			return columns
-
-		def update_dropdown(*args):
-			file_path = select_file_path()
-			columns = get_columns(file_path)
-			column_var.set(columns[0])
-			column_dropdown['values'] = columns
-		
-
-		# create textbox
-		self.textbox = customtkinter.CTkTextbox(self, width=250)
-		#self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-		self.textbox.insert("0.0", "Chronostratigraphy Age Range Calculator\n\n" + "The chronostratigraphy year range calculator takes in a.xlsx or .xls files.\n\n")
-		self.textbox.pack()
-
-		file_path = customtkinter.StringVar()
-		column_var = customtkinter.StringVar()
-
-		self.select_file_button = customtkinter.CTkButton(master=self, text = "Select the column where your max year is", command = select_file_path)
-		self.select_file_button1 = customtkinter.CTkButton(master=self, text = "Select the column where your max year range is", command = select_file_path)
-		self.select_file_button2 = customtkinter.CTkButton(master=self, text = "Select the column where your min year is", command = select_file_path)
-		self.select_file_button3 = customtkinter.CTkButton(master=self, text = "Select the column where your min year range is", command = select_file_path)
-		self.select_file_button4 = customtkinter.CTkButton(master=self, text = "Select just one column which describes the chronostratigraphy", command = select_file_path)
-		self.select_file_button5 = customtkinter.CTkButton(master=self, text = "OR Select two columns which describe the chronostratigraphy", command = select_file_path)
-
-
-		# self.select_file_button.pack()
-		#self.select_file_button.grid(row=1, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
-
-		self.select_file_button1.pack()
-		self.select_file_button2.pack()
-		self.select_file_button3.pack()
-		self.select_file_button4.pack()
-		self.select_file_button5.pack()
-
-		self.progressbar = customtkinter.CTkProgressBar(master=self)
-		#self.progressbar.pack(padx=20, pady=10)
-
-		
-
-
-		# column_dropdown = ttk.Combobox(self, textvariable=column_var)
-		# column_dropdown.pack()
-		# column_dropdown1 = ttk.Combobox(self, textvariable=column_var)
-		# column_dropdown1.pack()
-		# column_dropdown2 = ttk.Combobox(self, textvariable=column_var)
-		# column_dropdown2.pack()
-		# column_dropdown3 = ttk.Combobox(self, textvariable=column_var)
-		# column_dropdown3.pack()
-
-
-		# tkvar = customtkinter.StringVar(self)
-		# tkvar1 = customtkinter.StringVar(self)
-		# tkvar2 = customtkinter.StringVar(self)
 
 # if __name__ == '__main__':
-# 	#main(input_range_columns, strat_age_list)
-# 	app = App()
-# 	app.mainloop()
-# 	main(input_range_columns, strat_age_list)
-
-
-## GUI - testing
-
-class MainApp:
-	def __init__(self, master):
-		self.master = master
-		self.master.title("Chronostratigraphy Year Range Calculator")
-
-		def optionmenu_callback(choice):
-			print("optionmenu dropdown clicked:", choice)
-
-		def select_file_path():
-			self.filename = filedialog.askopenfilename(initialdir = "/", title = "Select a file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
-			df = pd.read_excel(self.filename)
-			columns = df.columns
-			tkvar.set(columns[0]) # set default value
-
-			column_menu = customtkinter.CTkOptionMenu(self, values = columns,  command=optionmenu_callback)
-			column_menu.pack()
-			column_menu.set(columns[0])  # set initial value
-
-		# 	return file_path
-
-		def select_file_path():
-			file_path = filedialog.askopenfilename(filetypes = (("Excel files", "*.xlsx"), ("All files", "*.*")))
-			if file_path:
-				var.set(file_path)
-
-			#Make 3 more for the other input variables?
-
-		def get_columns(file_path):
-			df = pd.read_excel(file_path)
-			columns = df.columns.tolist()
-			return columns
-
-		def update_dropdown(*args):
-			file_path = select_file_path()
-			columns = get_columns(file_path)
-			column_var.set(columns[0])
-			column_dropdown['values'] = columns
-
-
-		# create textbox
-		self.texty = tk.Text(self.master, height = 2, width = 60)
-		self.texty.pack()
-		self.texty.config(font=("Arial", 10))
-		#self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-		self.intro_spiel_t = self.texty.insert(tk.END,"The input must be in an .xlsx or .xls file. It can also take in \nmultiple files." + " See the README.pdf for full documentation.")
-		# self.intro_spiel = tk.Label(self.master, text = "Chronostratigraphy Age Range Calculator\n\n" + "The input must be in an .xlsx or .xls file. It can also take in multiple files.  \n\n")
-
-		# create dropdown menu for selecting chrono category columns
-		self.strat_age_list_label = tk.Label(self.master, text="Select the first chronostratigraphy category column")
-		self.strat_age_list_label.pack()
-		self.strat_age_list_var = tk.StringVar(self.master)
-		self.strat_age_list_var.set("strat_age")
-		self.strat_age_list_dropdown = tk.Button(self.master, text = "Select a file that will populate the fields", command = select_file_path)
-		self.strat_age_list_dropdown.pack()
-
-		var = tk.StringVar(root)
-		var.set("Using the following Excel file for configuration")
-		file_path_menu = tk.OptionMenu(root, var, '')
-		file_path_menu.pack()
-
-		# create dropdown menu for selecting chrono category columns
-		self.strat_age_list_label = tk.Label(self.master, text="Select the second chronostratigraphy category column (Optional)")
-		self.strat_age_list_label.pack()
-		self.strat_age_list_var = tk.StringVar(self.master)
-		self.strat_age_list_var.set("strat_age")
-		self.strat_age_list_dropdown = tk.OptionMenu(self.master, self.strat_age_list_var, command = get_columns(file_path))
-		self.strat_age_list_dropdown.pack()
-
-
-		# create dropdown menu for input_range_columns
-		self.input_range_columns_label = tk.Label(self.master, text="Select input range columns:")
-		self.input_range_columns_label.pack()
-		self.input_range_columns_var = tk.StringVar(self.master)
-		self.input_range_columns_var.set("age_max_t")
-		self.input_range_columns_dropdown = tk.OptionMenu(self.master, self.input_range_columns_var,
-														   "age_max_t", "age_max_t_range", "age_min_t", "age_min_t_range")
-		self.input_range_columns_dropdown.pack()
-
-		# create dropdown menu for input_range_columns
-		self.input_range_columns_label = tk.Label(self.master, text="Select input range columns:")
-		self.input_range_columns_label.pack()
-		self.input_range_columns_var = tk.StringVar(self.master)
-		self.input_range_columns_var.set("age_max_t")
-		self.input_range_columns_dropdown = tk.OptionMenu(self.master, self.input_range_columns_var,
-														   "age_max_t", "age_max_t_range", "age_min_t", "age_min_t_range")
-		self.input_range_columns_dropdown.pack()
-
-		# create dropdown menu for input_range_columns
-		self.input_range_columns_label = tk.Label(self.master, text="Select input range columns:")
-		self.input_range_columns_label.pack()
-		self.input_range_columns_var = tk.StringVar(self.master)
-		self.input_range_columns_var.set("age_max_t")
-		self.input_range_columns_dropdown = tk.OptionMenu(self.master, self.input_range_columns_var,
-														   "age_max_t", "age_max_t_range", "age_min_t", "age_min_t_range")
-		self.input_range_columns_dropdown.pack()
-
-		# create dropdown menu for input_range_columns
-		self.input_range_columns_label = tk.Label(self.master, text="Select input range columns:")
-		self.input_range_columns_label.pack()
-		self.input_range_columns_var = tk.StringVar(self.master)
-		self.input_range_columns_var.set("age_max_t")
-		self.input_range_columns_dropdown = tk.OptionMenu(self.master, self.input_range_columns_var,
-														   "age_max_t", "age_max_t_range", "age_min_t", "age_min_t_range")
-		self.input_range_columns_dropdown.pack()
-
-
-		# create button to execute main()
-		self.execute_button = tk.Button(self.master, text="Execute", command=self.execute_main)
-		self.execute_button.pack()
-
-	def execute_main(self):
-		input_range_columns = self.input_range_columns_var.get()
-		strat_age_list = self.strat_age_list_var.get()
-		main(input_range_columns, strat_age_list)
+# 	root = tk.Tk()
+# 	app = App(master)
+# 	master.mainloop()
 
 if __name__ == '__main__':
-	root = tk.Tk()
-	app = MainApp(root)
-	root.mainloop()
-
-
+	sys.argv = ["streamlit", "run", "strat_range_calc.py"]
+	sys.exit(stcli.main())
+	# main(input_range_columns, strat_age_list)
 
 print('Completed at:', (time.strftime('%a %H:%M:%S')), f', see output file at {out_dir}')
 

@@ -19,12 +19,12 @@ rem If these are not yet installed, run the batch file once, then locate the pat
 rem Update the path with your local installs.
 rem Now you may rerun the batch file.
 
-set "PATH= %PATH%, %ProgramFiles%\ArcGIS\Pro\bin\Python\Scripts\%, C:\Users\PMARCZAK\AppData\Roaming\Python\Python39\Scripts, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\Lib, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\Lib\site-packages"
+set "PATH= %PATH%, %ProgramFiles%\ArcGIS\Pro\bin\Python\Scripts\%, C:\Users\PMARCZAK\AppData\Roaming\Python\Python39\Scripts, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\Lib, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\Lib\site-packages, C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\Scripts"
 echo %PATH%
 
 rem Set your python exe to your own install folder
 
-set python_exe= "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe"
+set python_exe= "C:\Users\PMARCZAK\AppData\Local\ESRI\conda\envs\arcgispro-py3-clone\python.exe"
 
 rem Configure the field name in the script
 
@@ -32,6 +32,5 @@ rem %python_exe% ".\strat_range_calc.py" strat_age "age_max_t age_max_t_range ag
 
 
 %python_exe% ".\strat_range_calc.py"
-
 
 pause

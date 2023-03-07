@@ -271,6 +271,9 @@ class ExcelDropdownMenus(tk.Tk):
 
 
 		self.menus = []
+
+		# creat list of option menus
+
 		for i in range(5):
 			menu = tk.OptionMenu(self, tk.StringVar(), [])
 			menu.pack(pady=10)
@@ -279,7 +282,9 @@ class ExcelDropdownMenus(tk.Tk):
 		# create button to execute main()
 		self.execute_button = tk.Button(self, text="Execute", command = ...)
 		self.execute_button.pack()
-		
+	
+	# create function to load excel file
+
 	def load_excel(self):
 		file_path = filedialog.askopenfilename(initialdir = "/", title = "Select file", filetypes = (("Excel files", "*.xlsx"), ("all files", "*.*")))
 		if file_path:
@@ -293,6 +298,24 @@ class ExcelDropdownMenus(tk.Tk):
 						menu["menu"].add_command(label=column, command=lambda value=column: menu["variable"].set(value))
 			except Exception as e:
 				messagebox.showerror("Error", str(e))
+
+
+	# ok so i need to add two more function to get columns adn update dropdown? 
+	# but its already updating dropdown just need to grab items from list
+	def get_columns(file_path):
+		df = pd.read_excel(file_path)
+		columns = df.columns.tolist()
+		return columns
+
+	def update_dropdown(*args):
+		file_path = select_file_path()
+		columns = get_columns(file_path)
+		column_var.set(columns[0])
+		column_dropdown['values'] = columns
+
+	file_path = customtkinter.StringVar()
+	column_var = customtkinter.StringVar()
+
 
 if __name__ == "__main__":
 	app = ExcelDropdownMenus()

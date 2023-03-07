@@ -99,58 +99,6 @@ An example batch file execution is as such:
         -Run strat_range_calc.py -one -
 
 
----------
-## Notes on Dockerfile
-
-To deploy an app using a Dockerfile, you'll need to have Docker installed on the machine you're using for deployment. Once you have Docker set up, you can use the following steps to deploy your app:
-
-1. Write a Dockerfile for your app. The Dockerfile should specify the base image to use, any additional software that needs to be installed, and how to configure your app to run within the container.
-
-2. Build the Docker image using the Dockerfile. This is done by running the command docker build -t <image_name> . in the directory where the Dockerfile is located. The -t flag specifies the name you want to give the image, and the . specifies the current directory as the build context.
-
-3. Run the Docker image to start a container. This is done by running the command docker run -p <host_port>:<container_port> <image_name>. The -p flag maps the specified host port to the specified container port. The <image_name> should be the same as the name specified in step 2.
-
-4. Your application is now running in a container and it's accessible through the host port you specified.
-
-Here's an example of a Dockerfile for a simple Python app:
-
-
-                # Use an official Python runtime as the base image
-                FROM python:3.8-alpine
-                
-                # Set the working directory in the container
-                WORKDIR /app
-                
-                # Copy the requirements file into the container
-                COPY requirements.txt .
-                
-                # Install the required packages
-                RUN pip install --no-cache-dir -r requirements.txt
-                
-                # Copy the application code into the container
-                COPY . .
-                
-                # Expose the port on which the app will run
-                EXPOSE 8000
-                
-                # Run the command to start the app
-                CMD ["python", "app.py"]
-
-You can build this Dockerfile by running
-
-
-                docker build -t my_app .
-
-then run the container by
-
-                docker run -p 8000:8000 my_app
-
-
-This will run the container and map the host's port 8000 to the container's port 8000 so you can access the app on http://localhost:8000
-
-Please note that this is just an example and you may need to adjust the commands, ports, and file paths based on your specific application and environment.
-
-
 
 # Support:
 
