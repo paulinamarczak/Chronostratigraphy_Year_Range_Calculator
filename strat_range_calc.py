@@ -55,17 +55,17 @@ list_of_values_to_match = []
 
 # Eventually these will be user-selected
 
-input_range_columns = ['age_max_t',
-						'age_max_t_range',
-						'age_min_t',
-						'age_min_t_range']
+# input_range_columns = ['age_max_t',
+# 						'age_max_t_range',
+# 						'age_min_t',
+# 						'age_min_t_range']
 
 # Split incoming single-column range to two
 
 # Possibly user input if already split into two, otherwise they are split from 1 input and renamed as this
 
-strat_age_list_split = ['strat_age_max',
-				'strat_age_min']
+# strat_age_list_split = ['strat_age_max',
+# 				'strat_age_min']
 
 # Values columns from LUT - static
 
@@ -75,12 +75,7 @@ strat_age_Range_list = ['Max_Age_LUT',
 						'Min_Age_Range_LUT']
 
 
-#Streamlit
-
-
-#####################################################################################################
 # Title
-#####################################################################################################
 
 st.set_page_config(page_title = "Chronostratigraphy Year Range Calculator")
 st.title("Chronostratigraphy Year Range Calculator")
@@ -89,19 +84,14 @@ st.write("Contact Information: Paulina Marczak, MSc | paulina.marczak@gov.bc.ca"
 st.write("-------------")
 st.write("Read the documentation at https://htmlpreview.github.io/?https://github.com/paulinamarczak/Chronostratigraphy_Year_Range_Calculator/blob/main/README.html")
 
-#####################################################################################################
-# Load user data
-#####################################################################################################
+
+# Load user data section
 
 st.subheader("Upload your data as an Excel file")
 
 types = ["xls", "xlsx"]
 
 uploaded_file = st.file_uploader(label = "", type = types)
-
-if uploaded_file is not None:
-	data = pd.read_csv(uploaded_file, skiprows = 0)
-
 
 
 ## Functions
@@ -131,13 +121,6 @@ for index,row in LUT.iterrows():
 	LUT_list.append(d)
 
 ## Main
-
-# @click.command()
-# @click.argument("input_range_columns") # Value fields (max, max range, min, min range) in user data
-# @click.argument("strat_age_list") # Category fields to classify chronostratigraphy in user data
-
-def convert_df(df):
-	return df.to_csv().encode("utf-8")
 
 def main(input_range_columns, strat_age_list):
 
@@ -202,22 +185,32 @@ def main(input_range_columns, strat_age_list):
 			return out
 
 
-#####################################################################################################
-# Chronostratigraphy-added data
-#####################################################################################################
+
+# Chronostratigraphy-added data section
 
 if uploaded_file is not None:
 	st.write("")
-	st.subheader("Argide-corrected data")
+	st.subheader("Chronostratigraphy added data")
 	st.write("")
 
-	st.dataframe(data)
+	data = pd.read_excel(uploaded_file)
+	
+	#get file field options
+	strat_age_list_split=st.multiselect("Select up to two chronostratigraphy descriptor columns (e.g., Mesoproterozoic to Neoproterozoic)",data.columns.unique())
+	input_range_columns=st.multiselect("Select four chronostratigraphy year and year range columns (e.g., age_max_t	age_max_t_range	age_min_t age_min_t_range)",data.columns.unique())
+
+
+	main(input_range_columns, strat_age_list)
+
+	st.dataframe(out)
 
 	st.write("")
 
 	# Download button for RFC model results
 
 	file_name = st.text_input(label = "Input file name (incude .csv)")
+
+	
 
 	@st.cache
 	def convert_df(df):
@@ -226,11 +219,6 @@ if uploaded_file is not None:
 	corrected_data_download = convert_df(out)
 	st.download_button(label = "Download corrected data", data = corrected_data_download, file_name = file_name, mime = "text/csv")
 
-
-# if __name__ == '__main__':
-# 	root = tk.Tk()
-# 	app = App(master)
-# 	master.mainloop()
 
 if __name__ == '__main__':
 	sys.argv = ["streamlit", "run", "strat_range_calc.py"]
